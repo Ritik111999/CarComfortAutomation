@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_DIR">${sys:artifact.dir}/artifacts/logs</Property>
+        <Property name="EXECUTION_ID">${sys:execution.id}</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="File" fileName="${LOG_DIR}/execution-${EXECUTION_ID}.log"
+                     filePattern="${LOG_DIR}/execution-${EXECUTION_ID}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <RollingFile name="ErrorFile" fileName="${LOG_DIR}/errors-${EXECUTION_ID}.log"
+                     filePattern="${LOG_DIR}/errors-${EXECUTION_ID}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+        </RollingFile>
+
+        <Async name="AsyncFile">
+            <AppenderRef ref="File"/>
+        </Async>
+        <Async name="AsyncErrorFile">
+            <AppenderRef ref="ErrorFile"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncFile"/>
+            <AppenderRef ref="AsyncErrorFile"/>
+        </Root>
+
+        <Logger name="com.carcomfort" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncFile"/>
+            <AppenderRef ref="AsyncErrorFile"/>
+        </Logger>
+
+        <Logger name="io.appium" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <Logger name="org.openqa.selenium" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+
+        <Logger name="org.apache.http" level="WARN" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AsyncFile"/>
+        </Logger>
+    </Loggers>
+</Configuration>

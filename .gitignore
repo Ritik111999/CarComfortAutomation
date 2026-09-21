@@ -1,0 +1,80 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Maven wrapper
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.code-workspace
+.classpath
+.project
+.settings/
+*.launch
+.factorypath
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Env / secrets - NEVER commit real credentials
+.env
+.env.local
+*.pem
+*.p12
+*.keystore
+*.jks
+
+# Automation generated output
+artifacts/logs/
+artifacts/reports/
+artifacts/evidence/
+artifacts/device-locks/
+artifacts/screenshots/
+${sys:artifact.dir}/
+${user.dir}/
+screenshots/
+extent-reports/
+*.html.report/
+
+# Keep folder structure but ignore contents (uncomment if using .gitkeep)
+# !artifacts/.gitkeep
+
+# Appium / device
+*.hprof
+
+# Node (for .agents / tooling if any)
+node_modules/
+
+# Temp
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp

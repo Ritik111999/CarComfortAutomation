@@ -1,0 +1,69 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Car Comfort Gated/One-Time Tests" parallel="false" thread-count="1">
+    <parameter name="deviceUdid" value="${ANDROID_DEVICE_UDID}"/>
+
+    <!-- 
+        THIS SUITE REQUIRES EXPLICIT AUTHORIZATION:
+        -D RUN_GATED_TESTS=true -D GATED_CASE=<CASE_NAME>
+        
+        Or via environment variables:
+        RUN_GATED_TESTS=true GATED_CASE=<CASE_NAME>
+        
+        Without both flags, all tests in this suite will be ABORTED before execution.
+    -->
+
+    <test name="Account Bootstrap" preserve-order="true" enabled="false">
+        <groups>
+            <run>
+                <include name="account-bootstrap"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.gated.account"/>
+        </packages>
+    </test>
+
+    <test name="Verification Flows" preserve-order="true" enabled="false">
+        <groups>
+            <run>
+                <include name="verification"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.gated.verification"/>
+        </packages>
+    </test>
+
+    <test name="Payment Setup" preserve-order="true" enabled="false">
+        <groups>
+            <run>
+                <include name="payment-setup"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.gated.payment"/>
+        </packages>
+    </test>
+
+    <test name="Destructive Operations" preserve-order="true" enabled="false">
+        <groups>
+            <run>
+                <include name="destructive"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.gated.destructive"/>
+        </packages>
+    </test>
+
+    <test name="One-Time Configurations" preserve-order="true" enabled="false">
+        <groups>
+            <run>
+                <include name="one-time"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.gated.onetime"/>
+        </packages>
+    </test>
+</suite>

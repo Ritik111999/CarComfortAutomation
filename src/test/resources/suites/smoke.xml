@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Car Comfort Smoke Suite" parallel="false" thread-count="1">
+    <parameter name="deviceUdid" value="${ANDROID_DEVICE_UDID}"/>
+
+    <test name="Android Smoke Tests" preserve-order="true">
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <exclude name="gated,one-time,verification,payment-setup,account-bootstrap,destructive"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.smoke"/>
+        </packages>
+    </test>
+</suite>
