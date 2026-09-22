@@ -3,6 +3,9 @@
 > Machine source: `docs/exploration/ANDROID_SCREEN_GRAPH.json` (11 nodes, 12 edges, app v1.1.1, 22021211RI Android 14, 2026-09-22).
 > Evidence: git-ignored `artifacts/evidence/mapping/*.xml|*.png`. PII: street/shop/plot masked in docs; full hierarchy only in artifacts.
 > Prior modelled screens (RoleSelection, Login, CustomerHome/Profile, ProviderProfile) reuse verified 2026-09-22 knowledge — NOT rediscovered (checkpoint reuse).
+>
+> ## Smoke verification (2026-09-22 — CustomerNavigationSmokeTest + CustomerLoginSmokeTest GREEN 2/2)
+> VERIFIED on device: AND-CUST-HOME-001, AND-CUST-SVC-CARWASH-001 (step 1; EV/Combo mapped), AND-CUST-BOOKINGS-001, AND-CUST-ACTIVE-001, AND-CUST-SETTINGS-001/002, AND-CUST-SUPPORT-001, AND-CUST-PROFILE-001, AND-SHARED-LOGIN-001 (post-logout). Mapping-only (not in smoke): EV/Combo wizard execution, customer bell, wizard steps 2-4, customer booking detail.
 
 ## Shared
 
@@ -12,7 +15,7 @@
 - parent/entry: role selection ("Select your role") → select role; provider logout returns here directly
 - stable locators (HIGH unless noted): accessibilityId `Welcome to Car Comfort` (unique), `Login`, `Forgot Password?`, `Remember me`, `Sign up now` (GATED, never tap), `Terms and Conditions`, `Privacy Policy`; EditTexts: UiAutomator `EditText.instance(0)` email / `instance(1)` password (MEDIUM — no hint/desc, weak Flutter semantics, filed for app improvement)
 - safe actions: enter email/password (focus-tap + BACK-dismiss autofill overlay, never tap autofill), tap Login, tap Forgot Password? (view only — not traversed)
-- outgoing: → AND-PROV-HOME-001 (provider creds) | → AND-CUST-VEHICLE-001 (customer creds, onboarding gate)
+- outgoing: → AND-PROV-HOME-001 (provider creds) | → AND-CUST-HOME-001 (customer creds; transient vehicle/license gate observed in one prior session, cleared — Cancel taps=0)
 - gated: `Sign up now` (account creation — GATED/ONE_TIME, never tapped)
 - blockers: email/password fields expose no hint/content-desc/resource-id (AUTOMATION_BLOCKER filed as app-improvement request; workaround: class-instance focus-tap verified)
 - mapping: MAPPED + MODELLED (`LoginScreen.java`) | automation: AUTOMATED (smoke) | last verified: 2026-09-22
@@ -82,24 +85,79 @@
 - mapping: MODELLED (`ProviderProfileScreen.java`, `ProviderSettingsScreen.java`) | automation: AUTOMATED (provider smoke) | last verified: 2026-09-22 prior run
 - note: run avatar taps in this session landed on Settings due to per-screen instance shift (lesson recorded); profile re-verification deferred to next provider session via `ProviderAuthFlow.openProfile()` (no new discovery needed)
 
-## Customer (account in onboarding — home unreachable until bootstrap authorized)
+## Customer (verified CUSTOMER role: greeting "Carl Customer!" — owner "provider" label was inaccurate)
 
-### AND-CUST-VEHICLE-001 — Add Vehicle Information (ACCOUNT_BOOTSTRAP gate) ⛔
-- role: CUSTOMER | module: onboarding | parent: login submit (authorized customer creds land here, not home)
-- stable: `Cancel Signup` (DESTRUCTIVE candidate — never tapped), `Add Vehicle Information`, `Select Vehicle Type`, `Make *`, `Model *`, year/color/plate/fuel rows, `Save Vehicle` (creates vehicle record — GATED)
-- safe actions: NONE (all CTAs mutate onboarding state)
-- gated: `Save Vehicle` (ACCOUNT_BOOTSTRAP), `Cancel Signup` (DESTRUCTIVE/BOOTSTRAP — needs owner call)
-- mapping: MAPPED (gate documented) | automation: BLOCKED | last verified: 2026-09-22
-- unblocks: owner authorizes vehicle creation (gated CASE) or provides onboarded customer account → then CUST-003/004/005 mappable
+### AND-CUST-HOME-001 — Customer Home (map + "Enter Service Details" sheet)
+- role: CUSTOMER (proven by greeting + customer bookings cross-match) | module: dashboard | parent: login submit
+- fingerprint: {`Carl Customer!` + `Enter Service Details` + `Car Wash` + `EV Charging` + `EV charging & Car wash` + `Powered by Mapbox Maps`}
+- locators: service cards accessibilityId HIGH; avatar `ImageView.instance(3)` MEDIUM; bottom tabs 5 × y≈2241–2362 MEDIUM; bell top-right MEDIUM (untapped — unexplored safe edge)
+- safe actions: tap 3 service cards (wizard step 1 each), tap tabs 1/2/3/4, tap avatar, tap bell (deferred)
+- outgoing: → AND-CUST-SVC-CARWASH/EVCHARGING/COMBO-001 | → AND-CUST-BOOKINGS-001 (tab1) | → AND-CUST-ACTIVE-001 (tab2) | → AND-CUST-SETTINGS-001 (tab3) | → AND-CUST-SUPPORT-001 (tab4) | → AND-CUST-PROFILE-001 (avatar)
+- mapping: MAPPED + MODELLED (`CustomerHomeScreen.java` prior + re-verified) | last verified: 2026-09-22 (3 routes)
 
-### AND-CUST-LICENSE-001 — Driver License upload (VERIFICATION gate) ⛔
-- entry: BACK from vehicle form (dismiss-only navigation, no save)
-- stable: `Driver License`, `Upload front and back photos`, `license photo must match profile photo`, `Upload Front Image`, `Upload`, `Upload Back Image`
-- gated: all Upload CTAs (identity verification + PII photos — VERIFICATION, never tapped)
-- mapping: MAPPED (gate documented) | automation: BLOCKED | last verified: 2026-09-22
+### AND-CUST-SVC-CARWASH-001 — Car Wash wizard, step 1 Location
+- stable: `Enter Car Wash Service Details`, steps 1-4 `Location/Service/Vehicle/Review`, `Location Details`, `Customer Location`, `Or Enter Address Manually`, `Location services are disabled.`, `Can't Find Service Location? Enter It Here`, CTA `Next: Car Wash Details`
+- safe boundary: STOP before `Next` (advances toward GATED submission)
+- mapping: MAPPED | MODELLED (new `CustomerServiceWizardScreen.java`) | edge BACK → home (pushed, safe)
 
-### Customer home/bookings/profile (prior model, NOT reachable this session)
-- `CustomerHomeScreen` (`Enter Service Details`, `Car Wash`, `EV Charging`, combo; avatar/nav positional), `CustomerProfileScreen` (`Profile`, `Personal Information`, `My Vehicles`, `Payment Methods` GATED, `Log Out`+`Okay`), `CustomerAuthFlow` — all MODELLED/AUTOMATED from prior verified run; re-verification deferred until onboarding gate clears. No rediscovery attempted (checkpoint reuse).
+### AND-CUST-SVC-EVCHARGING-001 — EV Charging wizard, step 1 Location
+- stable: `Enter EV Charging Service Details`, steps `Location/Charging/Vehicle/Review`, `Select Charging Type`, `Tesla Supercharger`, `We'll show you available charging stations near your location`, `Do you have an EV account with a card on file for charging purposes?`, `YES`/`NO` (presence-only — option selection deferred as pre-submission state), CTA `Next: Charging Details`
+- safe boundary: STOP before `Next`; YES/NO left untouched (wizard state, submission path GATED downstream)
+- mapping: MAPPED | last verified: 2026-09-22
+
+### AND-CUST-SVC-COMBO-001 — Combo wizard, step 1 Location
+- stable: `Combined Service Details`, steps `Location/Service/Vehicle/Review`, `Combo`, `Your service provider will visit the selected charging station first, then head to the car wash location, before heading towards the drop off location`, CTA `Next: Service Details`
+- mapping: MAPPED | last verified: 2026-09-22
+
+### AND-CUST-BOOKINGS-001 — Customer My Bookings
+- stable: `My Bookings`, `All`, 3 cards (all `[address masked] Nagpur`): Confirmed `EV charging & Car wash / Service Provider Not Assigned / $212.68 / Sep 17 2026` + 2 Completed `3.0 karl Driver / $212.68 / Sep 15`, scrolled 4th `Cancelled by service provider / Cancelled / $155.69 / Sep 11`; each `View Service Details`
+- cross-role: Completed cards match provider booking #CC-CB-20260915-000013 value class ($124.99 provider payout vs $212.68 customer charge — relationship noted, no lifecycle executed)
+- safe: detail entry deferred (provider detail already maps the pattern); cancellation actions GATED by policy
+- mapping: MAPPED | MODELLED (new `CustomerBookingsScreen.java`) | last verified: 2026-09-22 (2 routes)
+
+### AND-CUST-ACTIVE-001 — My Active Booking (empty state)
+- stable: `My Active Booking`, `No Active Booking`, `You don't have any active or upcoming bookings right now.`, `Start a New Booking` (presence-only)
+- mapping: MAPPED | MODELLED (new `CustomerActiveBookingScreen.java`) | last verified: 2026-09-22
+
+### AND-CUST-SETTINGS-001 — Customer Settings (top)
+- stable (HIGH): `Settings`, `Switch to Service Provider` (NOT tapped), `Payment Methods` (GATED), `Booking History`, `Billing History`, `Notifications`, `Refer & Earn`, `Tutorial`, `File a Claim`, `Report Accident/Damage`, `Report Missing Item` (all presence-only)
+- outgoing: → AND-CUST-SETTINGS-002 (scroll)
+- mapping: MAPPED | MODELLED (new `CustomerSettingsScreen.java`) | last verified: 2026-09-22
+
+### AND-CUST-SETTINGS-002 — Customer Settings (legal + logout)
+- stable: `Terms & Conditions`, `Privacy Policy`, `Waiver`, `Support`, `Delete Account` (DESTRUCTIVE — never tapped), `Log Out` (authorized teardown → LOGIN form, verified)
+- edge: → AND-SHARED-LOGIN-001 via `Log Out`+`Okay`
+- mapping: MAPPED | last verified: 2026-09-22
+
+### AND-CUST-SUPPORT-001 — Customer Support (tab4)
+- stable: `Support`, `How we can help you?`, customer help text, scrolled `Email Us`, `Chat With Us`, `Call Support 1-800-702-3590` (presence-only, no intents fired)
+- shared-vs-role: same component pattern as AND-PROV-HELP-001, role-specific copy (SHARED_UI=false — separate objects)
+- mapping: MAPPED | MODELLED (new `CustomerSupportScreen.java`) | last verified: 2026-09-22 (2 routes)
+
+### AND-CUST-PROFILE-001 — Customer Profile (avatar)
+- stable (13 nodes, row names only — values masked): `Profile`, referral block, `Account`, `Personal Information`, `My Vehicles 3` (answers Outcome B: vehicle management lives here as normal path — prior vehicle screen content reusable as component, no ID duplication), `Payment Methods` (GATED), `Log Out`
+- edge BACK → home (pushed, safe)
+- mapping: MAPPED + MODELLED (`CustomerProfileScreen.java` re-verified) | last verified: 2026-09-22
+
+### AND-CUST-VEHICLE-001 / AND-CUST-LICENSE-001 — reclassified: transient incomplete-signup gates (Outcome A)
+- role: CUSTOMER (proven: appeared post-customer-login; owner "provider" label inaccurate — same wizard mechanism may exist per-role but observed only here)
+- status: state-dependent onboarding screens, NOT normal authenticated navigation; retained in graph/catalog as gate record, excluded from normal paths
+- Cancel Signup: owner-authorized one-time exit — NOT EXECUTED (cancelTaps=0; gate cleared transiently before action needed; auth recorded as unused). Classification stays GATED_ONBOARDING_EXIT (controlled, non-regression, never auto-run).
+
+### Customer logout destinations — VERIFIED PER EVIDENCE (code corrected 2026-09-22)
+- Profile `Log Out`+`Okay` → logged-out auth area with a BACK-STACK-DEPENDENT destination: ROLE SELECTION (evidence 20260922_142209_041) or LOGIN form directly (evidence 20260922_142614_576). `CustomerAuthFlow.logout()` accepts either marker (no overfit); `CustomerNavigationFlow.toLoginFromRoleSelection()` completes to the login form from either state.
+- Settings-tab `Log Out`+`Okay` → LOGIN form (mapping evidence AND-SHARED-ROLE-010).
+
+### AND-CUST-VEHICLE-001 — (superseded detail; see reclassification above)
+- prior record: `Cancel Signup`, `Add Vehicle Information`, Make/Model/year/color/plate/fuel, `Save Vehicle` — all GATED, never tapped; gate cleared transiently, Cancel taps=0
+- status: HISTORICAL gate record only
+
+### AND-CUST-LICENSE-001 — (superseded detail; see reclassification above)
+- prior record: `Driver License`, Upload Front/Back (VERIFICATION, never tapped)
+- status: HISTORICAL gate record only
+
+### Prior-model note (fulfilled)
+- `CustomerHomeScreen`, `CustomerProfileScreen`, `CustomerAuthFlow` — all RE-VERIFIED live this run (home greeting, profile rows, logout path observed); prior checkpoint reuse honored (no redundant rediscovery).
 
 ## Shared-UI
 - SHARED_UI=true: Login form layout, bottom-tab bar pattern (5 tabs), Settings row pattern, Help page pattern, logout `Okay` confirm dialog. Reused via `BaseAndroidScreen` + `LocatorFactory`; role-specific screens stay separate.
@@ -111,6 +169,6 @@
 - Duplicates prevented: home self-loop (tab0), bookings/wallet/settings multi-route (fingerprint dedup on sorted content-desc sets).
 
 ## Automation blockers
-- B-002 (new): Customer onboarding gate (vehicle + license) blocks all CUST home flows — needs owner bootstrap authorization. Not a locator issue; no repeated attempts.
+- B-002: RESOLVED 2026-09-22 (transient incomplete-signup gate cleared without Cancel; relogin → home verified; Cancel taps=0, auth unused; historical record retained).
 - B-003 (info): Flutter weak semantics on email/password/avatar/nav (no desc/id) — positional workaround verified; app-improvement: add content-desc/hint.
 - App-boundary incident (resolved): BACK from tab root exits app (verified — Router Setup app briefly foregrounded, no interaction, immediately returned; Router dumps deleted, excluded from graph). Rule: BACK only from pushed screens; tab returns via home-tab tap.

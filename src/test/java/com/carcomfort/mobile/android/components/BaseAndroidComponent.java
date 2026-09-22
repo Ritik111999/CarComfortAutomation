@@ -22,6 +22,18 @@ public abstract class BaseAndroidComponent {
         this.rootElement = rootElement;
     }
 
+    /**
+     * Root-less variant for screen-spanning components (e.g. bottom nav bar)
+     * that resolve targets fresh from the driver on every call. Scoped
+     * {@code find*} helpers require a root — subclasses without one must use
+     * {@code driverManager} directly.
+     */
+    protected BaseAndroidComponent(AndroidDriverManager driverManager) {
+        this.driverManager = driverManager;
+        this.waits = new WaitStrategies();
+        this.rootElement = null;
+    }
+
     protected BaseAndroidComponent(AndroidDriverManager driverManager, By rootLocator) {
         this(driverManager, driverManager.getDriver().findElement(rootLocator));
     }

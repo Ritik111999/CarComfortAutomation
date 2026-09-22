@@ -15,16 +15,16 @@
 
 | ID | Feature | Screen/Flow | Status | Test ID | Last Verified | Notes |
 |----|---------|-------------|--------|---------|---------------|-------|
-| CUST-001 | App Launch | Splash → Login | MAPPED | - | 2026-09-22 | Login mapped; home gated by B-002 |
-| CUST-002 | Login | Login Screen | AUTOMATED | CustomerLoginSmokeTest | 2026-09-22 | Executes; lands on vehicle gate (prior verified) |
-| CUST-003 | Service Browse | Service List | BLOCKED | - | 2026-09-22 | Behind vehicle/license gate (B-002) |
-| CUST-004 | Booking Flow | Booking Wizard | BLOCKED | - | 2026-09-22 | Behind gate (B-002); commit actions GATED regardless |
-| CUST-005 | Booking Management | My Bookings | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
-| CUST-006 | Profile | Profile Screen | MODELLED | - | 2026-09-22 | Modelled prior run; unreachable this session (B-002) |
-| CUST-007 | Notifications | Notification Center | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
-| CUST-008 | Payment | Payment Methods | GATED | - | 2026-09-22 | Entry row known; card/bank setup GATED |
-| CUST-009 | History | Booking History | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
-| CUST-010 | Support | Help/Support | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
+| CUST-001 | App Launch | Splash → Login | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | Full smoke green on device |
+| CUST-002 | Login | Login Screen | VERIFIED | CustomerLoginSmokeTest | 2026-09-22 | Login + logout contract green |
+| CUST-003 | Service Browse | Service List | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | 3 wizard step-1 screens verified; submission GATED |
+| CUST-004 | Booking Flow | Booking Wizard | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | Location steps verified; steps 2-4 + submit GATED/deferred |
+| CUST-005 | Booking Management | My Bookings | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | List + Active empty state verified |
+| CUST-006 | Profile | Profile Screen | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | 13-row profile verified (PII masked) |
+| CUST-007 | Notifications | Notification Center | MAPPED | - | 2026-09-22 | Bell edge deferred; settings row known |
+| CUST-008 | Payment | Payment Methods | GATED | - | 2026-09-22 | Row presence-only; card/bank setup GATED |
+| CUST-009 | History | Booking History | MAPPED | - | 2026-09-22 | Row + bookings list cover states; dedicated history entry deferred |
+| CUST-010 | Support | Help/Support | VERIFIED | CustomerNavigationSmokeTest | 2026-09-22 | Support page + contact rows verified read-only |
 
 ---
 
@@ -95,11 +95,11 @@
 
 | Platform | Role | Discovered | Automated | Verified | Blocked | Gated |
 |----------|------|------------|-----------|----------|---------|-------|
-| Android | Customer | 3 | 1 | 0 | 7 | 2 |
+| Android | Customer | 12 | 2 | 7 | 0 | 3 |
 | Android | Provider | 8 | 1 | 0 | 0 | 2 |
 | Android | Admin | 0 | 0 | 0 | 0 | 0 |
 | PWA | Customer | 0 | 0 | 0 | 0 | 0 |
 | PWA | Admin | 0 | 0 | 0 | 0 | 0 |
-| **Total** | | **11** | **2** | **0** | **7** | **4** |
+| **Total** | | **20+1 shared** | **3** | **7** | **0** | **5** |
 
-*Last Updated: 2026-09-22 (mapping run; 11 unique nodes in ANDROID_SCREEN_GRAPH.json; customer home flows blocked by B-002 onboarding gate; no TestNG product assertions executed this run — verification = mapping evidence only).*
+*Last Updated: 2026-09-22 (21 nodes / 22 edges in ANDROID_SCREEN_GRAPH.json; B-002 resolved; customer bell + wizard steps 2-4 + customer booking detail deferred; CustomerNavigationSmokeTest + CustomerLoginSmokeTest GREEN on device 2026-09-22 (2/2 in one session).*

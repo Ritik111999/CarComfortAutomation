@@ -107,18 +107,47 @@ public final class CustomerAuthFlow extends BaseBusinessFlow {
     }
 
     /**
-     * Logs out and verifies return to role selection. Discovered behavior
-     * (2026-09-22): logout lands on "Select your role", not the login form.
+     * Logs out from the PROFILE screen. Verified behavior (2026-09-22):
+     * the destination after Log Out + Okay is the logged-out auth area but
+     * varies by back-stack — either ROLE SELECTION ("Select your role",
+     * failure-evidence 20260922_142209_041) or the LOGIN form directly
+     * (failure-evidence 20260922_142614_576). Both prove teardown; the
+     * assertion accepts either marker instead of overfitting one run.
+     * Provider behavior stays in its own separately verified flow.
      * Authorized session teardown.
      */
     public void logout() {
         profile.tapLogOut();
-        roleSelection.waitForScreenLoadedLong();
+        io.appium.java_client.android.AndroidDriver driver = driverManager.getDriver();
+        org.openqa.selenium.By roleTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Select your role");
+        org.openqa.selenium.By loginTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Welcome to Car Comfort");
+        final boolean[] seen = {false};
+        final String[] where = {""};
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(30))
+                    .pollInterval(java.time.Duration.ofSeconds(1))
+                    .ignoreExceptions()
+                    .until(() -> {
+                        if (!driver.findElements(loginTitle).isEmpty()) {
+                            seen[0] = true;
+                            where[0] = "login form";
+                            return true;
+                        }
+                        if (!driver.findElements(roleTitle).isEmpty()) {
+                            seen[0] = true;
+                            where[0] = "role selection";
+                            return true;
+                        }
+                        return false;
+                    });
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            // seen[0] stays false -> assertion below reports it
+        }
         captureCheckpointEvidence("customer_logged_out");
-        assertBusinessRule(!driverManager.getDriver()
-                .findElements(com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Select your role")).isEmpty(),
-                "Returned to role selection after logout");
-        logBusinessCheckpoint("LOGOUT_DONE", "Customer logged out cleanly");
+        assertBusinessRule(seen[0], "Customer reaches a logged-out state after logout");
+        logBusinessCheckpoint("LOGOUT_DONE", "Customer logged out cleanly (" + where[0] + ")");
         finalizeAssertions();
     }
 }

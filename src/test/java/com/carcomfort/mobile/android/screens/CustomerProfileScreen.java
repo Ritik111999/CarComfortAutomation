@@ -5,8 +5,10 @@ import com.carcomfort.mobile.android.LocatorFactory;
 import org.openqa.selenium.By;
 
 /**
- * AND-CUST-PROFILE-001 — Customer profile (avatar, referral, account list).
- * Discovered 2026-09-22, app v1.1.1. All rows expose stable content-desc.
+ * AND-CUST-PROFILE-001 — Customer profile (header, referral, account list).
+ * Mapped 2026-09-22, app v1.1.1, re-verified with 13 content-desc nodes
+ * (Profile header, referral block, Account rows). PII values (name, email,
+ * phone, referral code) are never asserted or logged — row presence only.
  * "Payment Methods" row navigates toward GATED payment setup — automation stops
  * at row presence; entering card/bank flows requires explicit authorization.
  */

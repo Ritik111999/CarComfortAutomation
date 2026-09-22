@@ -46,13 +46,27 @@ FLOW_ID:
 
 ## Customer Gated Flows
 
-*(To be discovered)*
+### GATE-CUST-SIGNUP-EXIT-001 — Cancel Signup (one-time onboarding exit; AUTHORIZED but NOT executed)
+- category: GATED_ONBOARDING_EXIT (controlled account-state reset; excluded from regression, never auto-run)
+- role: CUSTOMER | screens: AND-CUST-VEHICLE-001 | authorization: owner one-time 2026-09-22 for incomplete-signup exit only
+- execution: NOT EXECUTED (cancelTaps=0; gate transiently absent at session start) — auth recorded unused
+- related: Save Vehicle (ACCOUNT_BOOTSTRAP), license Uploads (VERIFICATION), Sign up now (ONE_TIME), Delete Account (DESTRUCTIVE) — all untouched
+
+### GATE-CUST-BOOKING-SUBMIT-001 — Final booking submission boundary
+- category: GATED_BUSINESS_ACTION | screens: wizard steps 2-4 + Review | actions: Confirm Booking / Book Now / Submit / Pay / Place Order (none observed tapped; wizard stopped before Next)
+- related: Cancel Booking, payment cancellation — NOT authorized
+
+### GATE-CUST-PAYMENT-001 — Payment Methods entry
+- category: PAYMENT_SETUP | screen: profile/settings rows (presence-only)
 
 ---
 
 ## Provider Gated Flows
 
-*(To be discovered)*
+### GATE-PROV-STRIPE-001 — Complete Stripe verification
+- category: PAYMENT_SETUP + VERIFICATION | screen: AND-PROV-WALLET-001 (presence-only, never tapped)
+### GATE-PROV-JOBS-001 — Accept / Reject / Complete / Cancel (policy-gated; no live jobs observed)
+### GATE-PROV-ACCOUNT-001 — Delete Account (DESTRUCTIVE, settings row presence-only)
 
 ---
 

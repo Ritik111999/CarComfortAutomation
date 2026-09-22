@@ -29,10 +29,15 @@ FLOW_ID:
 
 ## Customer Flows
 
-### FLOW-CUST-AUTH-001 — Customer login → vehicle gate (documented, not passable without bootstrap)
-- role: CUSTOMER | screens: AND-SHARED-ROLE-001 → AND-SHARED-LOGIN-001 → AND-CUST-VEHICLE-001
-- steps: select Customer → enter env creds (focus-tap) → submit → lands on Add Vehicle Information (Save/Cancel GATED, stop)
-- automation status: AUTOMATED up to gate (`CustomerAuthFlow.loginAsCustomer` + `CustomerLoginSmokeTest`); home verification BLOCKED (B-002)
+### FLOW-CUST-AUTH-001 — Customer login → home (VERIFIED 2026-09-22)
+- role: CUSTOMER | screens: AND-SHARED-LOGIN-001 → AND-CUST-HOME-001 (`Carl Customer!` + service cards)
+- note: transient vehicle/license gate seen in one prior session only; logout destination back-stack-dependent (role-select OR login) — accepted either; completion to login via `CustomerNavigationFlow.toLoginFromRoleSelection()`. Status: AUTOMATED + VERIFIED (`CustomerLoginSmokeTest` GREEN).
+### FLOW-CUST-BROWSE-001 — Service wizard inspection (VERIFIED 2026-09-22)
+- steps: home → Car Wash / EV Charging / Combo card → Location step (4-step header, address/manual entry, service-specific options) → BACK; never taps Next (GATED_BUSINESS_ACTION boundary). Status: AUTOMATED + VERIFIED (`CustomerNavigationSmokeTest` GREEN; Car Wash path executed, EV/Combo mapped).
+### FLOW-CUST-BOOKINGS-001 — View My Bookings + Active empty state (VERIFIED 2026-09-22)
+- steps: home tab1 → bookings (Confirmed Not-Assigned + 2 Completed + scrolled Cancelled) → BACK/read; tab2 → active empty state. Status: AUTOMATED + VERIFIED (`CustomerNavigationSmokeTest` GREEN).
+### FLOW-CUST-SETTINGS-001 — Settings review → authorized logout (VERIFIED 2026-09-22)
+- steps: home tab3 → settings → scroll → Log Out + Okay → login form | status: AUTOMATED + VERIFIED (`CustomerNavigationSmokeTest` GREEN; teardown only)
 
 ---
 

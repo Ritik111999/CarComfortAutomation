@@ -59,6 +59,10 @@ public final class CustomerHomeScreen extends BaseAndroidScreen {
         click(EV_CHARGING_CARD, "EV Charging service card");
     }
 
+    public void tapCombo() {
+        click(COMBO_CARD, "EV charging & Car wash combo card");
+    }
+
     public void tapAvatar() {
         click(AVATAR, "Profile avatar");
     }

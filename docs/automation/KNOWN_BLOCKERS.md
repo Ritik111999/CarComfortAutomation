@@ -33,14 +33,14 @@ BLOCKER_ID:
 - discovered: 2026-09-22
 - owner: bootstrap
 
-### B-002: Customer account stuck at vehicle + driver-license onboarding gate (account-bootstrap)
-- screen: AND-CUST-VEHICLE-001 → AND-CUST-LICENSE-001
-- element: `Save Vehicle` / `Cancel Signup` / `Upload Front/Back Image` (all GATED, never tapped)
-- available attributes: full content-desc lists captured in `artifacts/evidence/mapping/AND-CUST-VEHICLE-001.xml`, `AND-CUST-VEHICLE-BACK-001.xml`
-- reason: authorized customer creds land on `Add Vehicle Information` (Make/Model/year/color/plate/fuel), BACK reveals `Driver License` upload (photos must match profile photo) — home/bookings/profile unreachable until bootstrap completes
-- recommended improvement: owner authorizes vehicle+license bootstrap (gated CASE) or provides an already-onboarded customer account
-- workaround: none (no repeated attempts; no Save/Cancel/Upload taps)
-- status: OPEN
+### B-002: Customer transient incomplete-signup gate (vehicle + driver-license) — RESOLVED
+- screen: AND-CUST-VEHICLE-001 → AND-CUST-LICENSE-001 (historical gate record; excluded from normal paths)
+- element: `Save Vehicle` / `Cancel Signup` / `Upload Front/Back Image` (all GATED, never tapped — cancelTaps=0)
+- root cause: test account remained in incomplete onboarding/signup state in one prior session
+- resolution: transient state cleared without action; owner-authorized one-time Cancel Signup NOT needed and NOT executed (auth recorded unused); relogin → `Carl Customer!` home verified 2026-09-22 with full customer branch mapping (10 live screens)
+- role correction: gate was CUSTOMER (post-customer-login evidence); owner "provider" label inaccurate — same wizard mechanism may exist per-role but observed only for customer
+- ONBOARDING_RESET_COMPLETED: NOT_REQUIRED (no reset executed; future agents: if home login works, skip onboarding path entirely; never auto-run Cancel Signup)
+- status: RESOLVED 2026-09-22 (record retained, not deleted)
 - discovered: 2026-09-22
 - owner: mapping-agent
 
