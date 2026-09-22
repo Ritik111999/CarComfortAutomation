@@ -24,24 +24,29 @@
 - ANDROID_HOME=/Users/ritik/Library/Android/sdk, ADB present, 1 authorized device (c68e***)
 - Appium MCP 1.94.3 + @appium/mcp-documentation 1.0.14 installed globally; workspace config `.agents/mcp_config.json` (NO_UI, docs, evidence ON; vision OFF)
 
-## Coverage snapshot
-- Discovered screens: 0 (device present; exploration pending owner confirmation)
-- Automated flows: 0 (framework smoke only)
-- Verified tests: 8 framework-level passed (0 product tests on device yet)
-- Blockers: B-001 device leg resolved; awaiting sanction to drive UI
+## Coverage snapshot (mapping run 2026-09-22)
+- Discovered screens: 11 unique nodes (`docs/exploration/ANDROID_SCREEN_GRAPH.json`, 12 edges)
+  - Provider (8): home, bookings, booking detail top + route plan, wallet (Stripe gate), settings top + legal/logout, help
+  - Shared (1): login (13 descs incl. Remember me, Forgot Password, social, Terms, Sign up GATED)
+  - Customer (2): vehicle gate + license gate (both ACCOUNT_BOOTSTRAP/VERIFICATION GATED — B-002)
+- Automated flows: 2 (CustomerAuthFlow, ProviderAuthFlow — prior verified, reused, not re-executed as tests this run)
+- New Screen Objects: ProviderBookingsScreen, ProviderBookingDetailScreen, ProviderWalletScreen, ProviderHelpScreen; ProviderSettingsScreen extended (legal rows)
+- Verified tests this run: mapping probes only (5 green runs, 0 product assertions) — no regression claimed
+- Fingerprint dedup: home self-loop + bookings/wallet/settings multi-route reconciled (sorted content-desc sets)
+- Blockers: B-001 resolved; B-002 OPEN (customer onboarding gate); B-003 info (weak semantics workaround verified)
+- Incidents: BACK-from-tab-root exits app (Router Setup foregrounded, no interaction, dumps deleted, rule recorded); final device state below
 
-## Physical device (updated 2026-09-22 — unit attached mid-task, read-only fingerprinted)
+## Physical device (updated 2026-09-22 — mapping run end state)
 - Status: ATTACHED, `device` (authorized), USB transport
 - UDID: c68e*** (masked; full value only in local env, never committed)
 - Manufacturer/Model: Xiaomi 22021211RI (Redmi Note 11 / POCO M4 Pro 5G)
 - Android 14 (SDK 34), 1080x2400, awake
 - Car Comfort app: `io.carcomfort.app` v1.1.1 (versionCode 11), launcher `io.carcomfort.app/.MainActivity`
-- B-001: device leg RESOLVED — discovery unblocked. No Appium session created yet (see next action).
+- Final app state: CUSTOMER onboarding gate (AND-CUST-LICENSE-001) — provider logged out cleanly (Logout+Okay verified 1x), customer logged in with env creds, vehicle/license bootstrap pending owner authorization. No gated CTA tapped at any point.
 - Suggested env for exploration:
-  `ANDROID_DEVICE_UDID=c68eec8e ANDROID_DEVICE_NAME=22021211RI ANDROID_APP_PACKAGE=io.carcomfort.app ANDROID_APP_ACTIVITY=.MainActivity AUTOMATION_OWNER_ID=<agent>`
+  `ANDROID_DEVICE_UDID=c68e*** ANDROID_DEVICE_NAME=22021211RI ANDROID_APP_PACKAGE=io.carcomfort.app ANDROID_APP_ACTIVITY=.MainActivity AUTOMATION_OWNER_ID=<agent>` (full UDID in local .env only)
 
 ## Next recommended action
-1. Owner confirms c68e*** is the sanctioned test device (it presents as a personal phone — no UI-driving without confirmation).
-2. Export the env above, acquire the device lock, and open the first safe Appium MCP exploratory session
-   (NO_UI=true, safe mode: hierarchy + screenshots, no logins/submits, no gated flows).
-3. Record the first SCREEN_CATALOG entries + mark CUST-001 DISCOVERED.
+1. Owner decision on B-002: authorize customer vehicle+license bootstrap (gated CASE) OR provide an already-onboarded customer account — until then CUST-003..010 stay BLOCKED (no repeated attempts).
+2. Next provider session: re-verify `ProviderAuthFlow.openProfile()` (VERIFIED DRIVER) + traverse one deferred legal row (e.g. Privacy Policy, read-only) using shortest safe paths in NAVIGATION_MAP.
+3. Do NOT run full regression until B-002 clears; targeted re-runs only (affected screen → module → smoke).

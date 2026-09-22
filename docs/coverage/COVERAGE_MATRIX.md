@@ -15,16 +15,16 @@
 
 | ID | Feature | Screen/Flow | Status | Test ID | Last Verified | Notes |
 |----|---------|-------------|--------|---------|---------------|-------|
-| CUST-001 | App Launch | Splash → Home | UNKNOWN | - | - | - |
-| CUST-002 | Login | Login Screen | UNKNOWN | - | - | - |
-| CUST-003 | Service Browse | Service List | UNKNOWN | - | - | - |
-| CUST-004 | Booking Flow | Booking Wizard | UNKNOWN | - | - | - |
-| CUST-005 | Booking Management | My Bookings | UNKNOWN | - | - | - |
-| CUST-006 | Profile | Profile Screen | UNKNOWN | - | - | - |
-| CUST-007 | Notifications | Notification Center | UNKNOWN | - | - | - |
-| CUST-008 | Payment | Payment Methods | UNKNOWN | - | - | - |
-| CUST-009 | History | Booking History | UNKNOWN | - | - | - |
-| CUST-010 | Support | Help/Support | UNKNOWN | - | - | - |
+| CUST-001 | App Launch | Splash → Login | MAPPED | - | 2026-09-22 | Login mapped; home gated by B-002 |
+| CUST-002 | Login | Login Screen | AUTOMATED | CustomerLoginSmokeTest | 2026-09-22 | Executes; lands on vehicle gate (prior verified) |
+| CUST-003 | Service Browse | Service List | BLOCKED | - | 2026-09-22 | Behind vehicle/license gate (B-002) |
+| CUST-004 | Booking Flow | Booking Wizard | BLOCKED | - | 2026-09-22 | Behind gate (B-002); commit actions GATED regardless |
+| CUST-005 | Booking Management | My Bookings | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
+| CUST-006 | Profile | Profile Screen | MODELLED | - | 2026-09-22 | Modelled prior run; unreachable this session (B-002) |
+| CUST-007 | Notifications | Notification Center | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
+| CUST-008 | Payment | Payment Methods | GATED | - | 2026-09-22 | Entry row known; card/bank setup GATED |
+| CUST-009 | History | Booking History | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
+| CUST-010 | Support | Help/Support | BLOCKED | - | 2026-09-22 | Behind gate (B-002) |
 
 ---
 
@@ -32,14 +32,14 @@
 
 | ID | Feature | Screen/Flow | Status | Test ID | Last Verified | Notes |
 |----|---------|-------------|--------|---------|---------------|-------|
-| PROV-001 | Provider Login | Login Screen | UNKNOWN | - | - | - |
-| PROV-002 | Dashboard | Provider Dashboard | UNKNOWN | - | - | - |
-| PROV-003 | Booking Acceptance | Pending Bookings | UNKNOWN | - | - | - |
-| PROV-004 | Service Management | Services CRUD | UNKNOWN | - | - | - |
-| PROV-005 | Availability | Schedule Management | UNKNOWN | - | - | - |
-| PROV-006 | Earnings | Earnings/Payouts | UNKNOWN | - | - | - |
-| PROV-007 | Profile | Provider Profile | UNKNOWN | - | - | - |
-| PROV-008 | Verification | KYC/Verification | UNKNOWN | - | - | - |
+| PROV-001 | Provider Login | Login Screen | AUTOMATED | ProviderLoginSmokeTest | 2026-09-22 | Session-restore reused; logout→login verified 1x |
+| PROV-002 | Dashboard | Provider Dashboard | MODELLED | - | 2026-09-22 | Home mapped 4 routes + modelled |
+| PROV-003 | Booking Acceptance | Pending Bookings | MAPPED | - | 2026-09-22 | List + Completed detail mapped; pending actions GATED, no live jobs |
+| PROV-004 | Service Management | Services CRUD | UNKNOWN | - | - | Not observed |
+| PROV-005 | Availability | Schedule Management | UNKNOWN | - | - | Not observed |
+| PROV-006 | Earnings | Earnings/Payouts | MAPPED | - | 2026-09-22 | Wallet mapped; Stripe verification GATED |
+| PROV-007 | Profile | Provider Profile | MODELLED | - | 2026-09-22 | Prior verified model (VERIFIED DRIVER); re-verify next session |
+| PROV-008 | Verification | KYC/Verification | GATED | - | 2026-09-22 | Stripe + licenseVerification GATED |
 
 ---
 
@@ -95,11 +95,11 @@
 
 | Platform | Role | Discovered | Automated | Verified | Blocked | Gated |
 |----------|------|------------|-----------|----------|---------|-------|
-| Android | Customer | 0 | 0 | 0 | 0 | 0 |
-| Android | Provider | 0 | 0 | 0 | 0 | 0 |
+| Android | Customer | 3 | 1 | 0 | 7 | 2 |
+| Android | Provider | 8 | 1 | 0 | 0 | 2 |
 | Android | Admin | 0 | 0 | 0 | 0 | 0 |
 | PWA | Customer | 0 | 0 | 0 | 0 | 0 |
 | PWA | Admin | 0 | 0 | 0 | 0 | 0 |
-| **Total** | | **0** | **0** | **0** | **0** | **0** |
+| **Total** | | **11** | **2** | **0** | **7** | **4** |
 
-*Last Updated: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
+*Last Updated: 2026-09-22 (mapping run; 11 unique nodes in ANDROID_SCREEN_GRAPH.json; customer home flows blocked by B-002 onboarding gate; no TestNG product assertions executed this run — verification = mapping evidence only).*

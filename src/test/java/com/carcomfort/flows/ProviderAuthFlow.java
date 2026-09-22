@@ -125,14 +125,16 @@ public final class ProviderAuthFlow extends BaseBusinessFlow {
         logBusinessCheckpoint("HOME_RETURN", "Returned to provider home from profile");
     }
 
-    /** Logs out from the settings tab and verifies return to role selection. */
+    /**
+     * Logs out from the settings tab and verifies return to the login form.
+     * Discovered behavior (2026-09-22): provider logout lands on the LOGIN form,
+     * unlike customer logout which returns to role selection. Authorized teardown.
+     */
     public void logout() {
         settings.tapLogOut();
-        roleSelection.waitForScreenLoadedLong();
+        login.waitForScreenLoadedLong();
         captureCheckpointEvidence("provider_logged_out");
-        assertBusinessRule(!driverManager.getDriver()
-                .findElements(com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Select your role")).isEmpty(),
-                "Returned to role selection after provider logout");
+        assertBusinessRule(login.confirmPresent(), "Returned to login form after provider logout");
         logBusinessCheckpoint("LOGOUT_DONE", "Provider logged out cleanly");
         finalizeAssertions();
     }

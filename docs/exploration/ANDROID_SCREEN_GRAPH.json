@@ -1,0 +1,445 @@
+{
+  "appPackage": "io.carcomfort.app",
+  "appVersion": "1.1.1",
+  "device": "22021211RI Android 14",
+  "generated": "2026-09-22",
+  "nodes": [
+    {
+      "screenId": "AND-PROV-HOME-001",
+      "role": "PROVIDER",
+      "name": "Provider Home",
+      "module": "dashboard",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-HOME-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-HOME-003.xml",
+        "artifacts/evidence/mapping/AND-PROV-NTAB0-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-TAB0-001.xml"
+      ],
+      "descCount": 3,
+      "stableDescs": [
+        "Good Afternoon,",
+        "Powered by Mapbox Maps",
+        "karl Driver!"
+      ],
+      "evidence": [
+        "mapping/AND-PROV-HOME-001.xml",
+        "mapping/AND-PROV-HOME-003.xml",
+        "mapping/AND-PROV-NTAB0-001.xml",
+        "mapping/AND-PROV-TAB0-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-BOOKINGS-001",
+      "role": "PROVIDER",
+      "name": "My Bookings",
+      "module": "bookings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-BOOKINGS-002.xml",
+        "artifacts/evidence/mapping/AND-PROV-NTAB1-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-TAB1-001.xml"
+      ],
+      "descCount": 5,
+      "stableDescs": [
+        "All",
+        "Carl Customer EV charging & Car wash Completed Your payout $124.99 0.9 miles Scheduled for Sep 15, 2026 • 4:05 PM [shop masked], [area masked], Nagpur, Maharashtra 440022, India",
+        "Carl Customer EV charging & Car wash Completed Your payout $124.99 0.9 miles Scheduled for Sep 15, 2026 • 4:21 PM [shop masked], [area masked], Nagpur, Maharashtra 440022, India",
+        "My Bookings",
+        "View Service Details"
+      ],
+      "evidence": [
+        "mapping/AND-PROV-BOOKINGS-002.xml",
+        "mapping/AND-PROV-NTAB1-001.xml",
+        "mapping/AND-PROV-TAB1-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-WALLET-001",
+      "role": "PROVIDER",
+      "name": "My Wallet",
+      "module": "earnings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-HOME-001b.xml",
+        "artifacts/evidence/mapping/AND-PROV-NTAB2-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-TAB2-001.xml"
+      ],
+      "descCount": 5,
+      "stableDescs": [
+        "Complete Stripe verification",
+        "Complete Stripe verification to access your wallet and withdraw earnings.",
+        "Complete verification",
+        "I've completed verification — refresh",
+        "My Wallet"
+      ],
+      "evidence": [
+        "mapping/AND-PROV-HOME-001b.xml",
+        "mapping/AND-PROV-NTAB2-001.xml",
+        "mapping/AND-PROV-TAB2-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-SETTINGS-001",
+      "role": "PROVIDER",
+      "name": "Provider Settings",
+      "module": "settings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-004.xml",
+        "artifacts/evidence/mapping/AND-PROV-PROFILE-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-NTAB3-001.xml"
+      ],
+      "descCount": 11,
+      "stableDescs": [
+        "Booking History",
+        "File a Claim",
+        "Learning Center",
+        "Payment Methods",
+        "Profile Settings",
+        "Report Accident/Damage",
+        "Report Missing Item",
+        "Settings",
+        "Switch to customer",
+        "Tutorials",
+        "Wallet"
+      ],
+      "evidence": [
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-004.xml",
+        "artifacts/evidence/mapping/AND-PROV-PROFILE-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-NTAB3-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-SETTINGS-002",
+      "role": "PROVIDER",
+      "name": "Provider Settings (legal rows)",
+      "module": "settings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-005.xml",
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-006.xml",
+        "artifacts/evidence/mapping/AND-PROV-RESUME-004.xml"
+      ],
+      "descCount": 14,
+      "stableDescs": [
+        "Delete Account",
+        "Earnings Statement (PDF)",
+        "Independent Contractor Agreement",
+        "Logout",
+        "Notifications",
+        "Privacy Policy",
+        "Report Accident/Damage",
+        "Report Missing Item",
+        "Service Provider NDA",
+        "Settings",
+        "Support",
+        "Terms & Conditions",
+        "Vehicle User Agreement",
+        "Waiver"
+      ],
+      "evidence": [
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-005.xml",
+        "artifacts/evidence/mapping/AND-PROV-SETTINGS-006.xml",
+        "artifacts/evidence/mapping/AND-PROV-RESUME-004.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-HELP-001",
+      "role": "PROVIDER",
+      "name": "Help / Support",
+      "module": "support",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-NTAB4-001.xml"
+      ],
+      "descCount": 3,
+      "stableDescs": [
+        "How we can help you?",
+        "Need Help?",
+        "These terms apply to Car Comfort service providers (drivers) who accept and perform valet EV charging and car wash jobs through the provider app. Use this page for help with onboarding, payouts, active jobs, and account issues. How to reach provider support Open the in-app Support section from provider settings and include your booking ID or payout reference when available. Email support is also available through the address shown in the app. What we can help with Onboarding, document review, and approval status • Payout timing, missing earnings, or Stripe Connect setup • Issues during an active service or customer handoff • Account deactivation or reinstatement questions • Reporting safety incidents on a job • Response times We prioritize active job and payout issues during U.S. business hours. Complex cases may take additional time while we review logs and booking records."
+      ],
+      "evidence": [
+        "mapping/AND-PROV-NTAB4-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-REQDETAIL-001",
+      "role": "PROVIDER",
+      "name": "Booking Detail",
+      "module": "bookings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-CURRENT-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-HOME-002.xml",
+        "artifacts/evidence/mapping/AND-PROV-REQDETAIL-001.xml",
+        "artifacts/evidence/mapping/AND-PROV-REQDETAIL-002.xml"
+      ],
+      "descCount": 18,
+      "stableDescs": [
+        "#CC-CB-20260915-000013",
+        "BOOKING ID",
+        "BOOKING STATUS",
+        "CURRENT STATUS",
+        "Carl Customer",
+        "Completed",
+        "Current battery – 9%",
+        "EV account with card on file – No",
+        "Membership Package",
+        "Premium car wash",
+        "Select option #4 on car wash menu",
+        "Service Details",
+        "Service details",
+        "Service provider earnings for this job – $124.99",
+        "Service type – EV charging and Car wash",
+        "Thank you for choosing CarComfort. Your after-service photos and final billing are now available.",
+        "Time of service – As soon as possible",
+        "Vehicle charge limit – 50%"
+      ],
+      "evidence": [
+        "mapping/AND-PROV-CURRENT-001.xml",
+        "mapping/AND-PROV-HOME-002.xml",
+        "mapping/AND-PROV-REQDETAIL-001.xml",
+        "mapping/AND-PROV-REQDETAIL-002.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-PROV-REQDETAIL-002",
+      "role": "PROVIDER",
+      "name": "Booking Detail (route plan)",
+      "module": "bookings",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-PROV-REQDETAIL-003.xml"
+      ],
+      "descCount": 19,
+      "stableDescs": [
+        "3.7 miles",
+        "Charge limit: 50%",
+        "ESTIMATED RADIUS",
+        "Estimated service duration – 70min",
+        "[road masked]",
+        "Car Wash Center",
+        "Nagpur, 440022, India",
+        "PICKUP",
+        "Package: Premium car wash",
+        "[plot masked], [area masked], Nagpur, Maharashtra 440015, India",
+        "RETURN DROPOFF",
+        "Route Plan",
+        "STOP 1 · EV CHARGING",
+        "STOP 2 · CAR WASH",
+        "Service Details",
+        "Service provider earnings for this job – $124.99",
+        "[shop masked], [area masked], Nagpur, Maharashtra 440022, India",
+        "EV Charging Station",
+        "Time of service – As soon as possible"
+      ],
+      "evidence": [
+        "artifacts/evidence/mapping/AND-PROV-REQDETAIL-003.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-SHARED-LOGIN-001",
+      "role": "SHARED",
+      "name": "Login",
+      "module": "auth",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-CUST-AUTH-004.xml",
+        "artifacts/evidence/mapping/AND-CUST-HOME-004.xml",
+        "artifacts/evidence/mapping/AND-SHARED-LOGIN-004.xml"
+      ],
+      "descCount": 13,
+      "stableDescs": [
+        "&",
+        "Continue with Google, Apple or Facebook, you agree to Car Comfort",
+        "EV Charging and Car Wash Services",
+        "Forgot Password?",
+        "Hello there,",
+        "Login",
+        "Not a member?",
+        "Or continue with",
+        "Privacy Policy",
+        "Remember me",
+        "Sign up now",
+        "Terms and Conditions",
+        "Welcome to Car Comfort"
+      ],
+      "evidence": [
+        "mapping/AND-CUST-AUTH-004.xml",
+        "mapping/AND-CUST-HOME-004.xml",
+        "mapping/AND-SHARED-LOGIN-004.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-CUST-VEHICLE-001",
+      "role": "CUSTOMER",
+      "name": "Add Vehicle Information (onboarding gate)",
+      "module": "onboarding",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-CUST-VEHICLE-001.xml"
+      ],
+      "descCount": 15,
+      "stableDescs": [
+        "Add Vehicle Information",
+        "Cancel Signup",
+        "Fuel type",
+        "Input Vehicle License Plate",
+        "Make (e.g. Toyota)",
+        "Make *",
+        "Model (e.g. Camry)",
+        "Model *",
+        "Save Vehicle",
+        "Select Vehicle Type",
+        "Select fuel type (Gas, Diesel, or Electric)",
+        "Select manufacturing year",
+        "Select vehicle color",
+        "Select vehicle type (e.g. Sedan, SUV)",
+        "Vehicle Information"
+      ],
+      "evidence": [
+        "mapping/AND-CUST-VEHICLE-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    },
+    {
+      "screenId": "AND-CUST-LICENSE-001",
+      "role": "CUSTOMER",
+      "name": "Driver License upload (onboarding gate)",
+      "module": "onboarding",
+      "entryRoutes": [
+        "artifacts/evidence/mapping/AND-CUST-VEHICLE-BACK-001.xml"
+      ],
+      "descCount": 7,
+      "stableDescs": [
+        "Both images are required. Your license photo must match the profile photo submitted during registration.",
+        "Cancel Signup",
+        "Driver License",
+        "Upload",
+        "Upload Back Image",
+        "Upload Front Image",
+        "Upload front and back photos"
+      ],
+      "evidence": [
+        "mapping/AND-CUST-VEHICLE-BACK-001.xml"
+      ],
+      "appVersion": "1.1.1",
+      "device": "22021211RI Android 14"
+    }
+  ],
+  "edges": [
+    {
+      "from": "AND-PROV-HOME-001",
+      "action": "tap_tab_bookings",
+      "locator": "bottom_tab_index_1",
+      "to": "AND-PROV-BOOKINGS-001",
+      "safe": true,
+      "note": "tab switch, read-only list"
+    },
+    {
+      "from": "AND-PROV-BOOKINGS-001",
+      "action": "tap_view_service_details",
+      "locator": "accessibilityId:View Service Details",
+      "to": "AND-PROV-REQDETAIL-001",
+      "safe": true,
+      "note": "pushed detail, BACK pops"
+    },
+    {
+      "from": "AND-PROV-REQDETAIL-001",
+      "action": "scroll_forward",
+      "locator": "UiScrollable.scrollForward",
+      "to": "AND-PROV-REQDETAIL-002",
+      "safe": true,
+      "note": "route plan below fold"
+    },
+    {
+      "from": "AND-PROV-REQDETAIL-001",
+      "action": "back",
+      "locator": "system_back",
+      "to": "AND-PROV-BOOKINGS-001",
+      "safe": true,
+      "note": "pop detail (BACK only from pushed)"
+    },
+    {
+      "from": "AND-PROV-HOME-001",
+      "action": "tap_tab_wallet",
+      "locator": "bottom_tab_index_2",
+      "to": "AND-PROV-WALLET-001",
+      "safe": true,
+      "note": "Stripe-gated content shown, no verify taps"
+    },
+    {
+      "from": "AND-PROV-HOME-001",
+      "action": "tap_tab_settings",
+      "locator": "bottom_tab_index_3",
+      "to": "AND-PROV-SETTINGS-001",
+      "safe": true,
+      "note": "tab switch"
+    },
+    {
+      "from": "AND-PROV-SETTINGS-001",
+      "action": "scroll_forward",
+      "locator": "UiScrollable.scrollForward",
+      "to": "AND-PROV-SETTINGS-002",
+      "safe": true,
+      "note": "legal rows + Support + Delete Account + Logout"
+    },
+    {
+      "from": "AND-PROV-SETTINGS-002",
+      "action": "tap_Logout_Okay",
+      "locator": "accessibilityId:Logout/Okay",
+      "to": "AND-SHARED-LOGIN-001",
+      "safe": true,
+      "note": "authorized teardown, 1x role transition"
+    },
+    {
+      "from": "AND-PROV-HOME-001",
+      "action": "tap_tab_help",
+      "locator": "bottom_tab_index_4",
+      "to": "AND-PROV-HELP-001",
+      "safe": true,
+      "note": "informational support page"
+    },
+    {
+      "from": "AND-SHARED-LOGIN-001",
+      "action": "submit_login_customer",
+      "locator": "accessibilityId:Login",
+      "to": "AND-CUST-VEHICLE-001",
+      "safe": false,
+      "note": "authorized login lands on vehicle onboarding gate (bootstrap)"
+    },
+    {
+      "from": "AND-CUST-VEHICLE-001",
+      "action": "back",
+      "locator": "system_back",
+      "to": "AND-CUST-LICENSE-001",
+      "safe": true,
+      "note": "BACK reveals license step; Save/Upload NOT tapped (gated)"
+    },
+    {
+      "from": "AND-PROV-HOME-001",
+      "action": "tap_tab_home",
+      "locator": "bottom_tab_index_0",
+      "to": "AND-PROV-HOME-001",
+      "safe": true,
+      "note": "self-loop, fingerprint dedup"
+    }
+  ],
+  "notes": [
+    "BACK only from pushed detail/profile; tab returns via home tab (BACK from tab root exits app - verified incident)",
+    "Router Setup app incident excluded (outside io.carcomfort.app)",
+    "Customer home/bookings/profile unreachable until vehicle+license bootstrap authorized",
+    "PII: street addresses masked in docs; full hierarchy in git-ignored artifacts/evidence/mapping/",
+    "PII_MASKING: street/shop/plot/road masked in docs graph; full hierarchy only in git-ignored artifacts/evidence/mapping/"
+  ]
+}
