@@ -32,14 +32,14 @@
 
 | ID | Feature | Screen/Flow | Status | Test ID | Last Verified | Notes |
 |----|---------|-------------|--------|---------|---------------|-------|
-| PROV-001 | Provider Login | Login Screen | AUTOMATED | ProviderLoginSmokeTest | 2026-09-22 | Session-restore reused; logout→login verified 1x |
-| PROV-002 | Dashboard | Provider Dashboard | MODELLED | - | 2026-09-22 | Home mapped 4 routes + modelled |
-| PROV-003 | Booking Acceptance | Pending Bookings | MAPPED | - | 2026-09-22 | List + Completed detail mapped; pending actions GATED, no live jobs |
+| PROV-001 | Provider Login | Login Screen | VERIFIED | ProviderLoginSmokeTest | 2026-09-22 | GREEN incl. profile/settings/logout path |
+| PROV-002 | Dashboard | Provider Dashboard | VERIFIED | ProviderNavigationSmokeTest | 2026-09-22 | Greeting-verified (transition-tolerant poll) |
+| PROV-003 | Booking Acceptance | Pending Bookings | VERIFIED | ProviderNavigationSmokeTest | 2026-09-22 | List + read-only detail verified; empty-state fallback armed; mutations GATED |
 | PROV-004 | Service Management | Services CRUD | UNKNOWN | - | - | Not observed |
 | PROV-005 | Availability | Schedule Management | UNKNOWN | - | - | Not observed |
-| PROV-006 | Earnings | Earnings/Payouts | MAPPED | - | 2026-09-22 | Wallet mapped; Stripe verification GATED |
-| PROV-007 | Profile | Provider Profile | MODELLED | - | 2026-09-22 | Prior verified model (VERIFIED DRIVER); re-verify next session |
-| PROV-008 | Verification | KYC/Verification | GATED | - | 2026-09-22 | Stripe + licenseVerification GATED |
+| PROV-006 | Earnings | Earnings/Payouts | VERIFIED | ProviderNavigationSmokeTest | 2026-09-22 | Live balances view-only verified; Stripe gate gone (backend); no financial tap |
+| PROV-007 | Profile | Provider Profile | VERIFIED | ProviderNavigationSmokeTest | 2026-09-22 | VERIFIED DRIVER + onboarding rows verified (PII masked) |
+| PROV-008 | Verification | KYC/Verification | GATED | - | 2026-09-22 | No verification action taken; Stripe completed in backend outside automation |
 
 ---
 
@@ -96,10 +96,10 @@
 | Platform | Role | Discovered | Automated | Verified | Blocked | Gated |
 |----------|------|------------|-----------|----------|---------|-------|
 | Android | Customer | 12 | 2 | 7 | 0 | 3 |
-| Android | Provider | 8 | 1 | 0 | 0 | 2 |
+| Android | Provider | 8 | 2 | 5 | 0 | 2 |
 | Android | Admin | 0 | 0 | 0 | 0 | 0 |
 | PWA | Customer | 0 | 0 | 0 | 0 | 0 |
 | PWA | Admin | 0 | 0 | 0 | 0 | 0 |
-| **Total** | | **20+1 shared** | **3** | **7** | **0** | **5** |
+| **Total** | | **20+1 shared** | **4** | **12** | **0** | **5** |
 
 *Last Updated: 2026-09-22 (21 nodes / 22 edges in ANDROID_SCREEN_GRAPH.json; B-002 resolved; customer bell + wizard steps 2-4 + customer booking detail deferred; CustomerNavigationSmokeTest + CustomerLoginSmokeTest GREEN on device 2026-09-22 (2/2 in one session).*

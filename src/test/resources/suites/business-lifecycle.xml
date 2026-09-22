@@ -1,0 +1,16 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Car Comfort Business Lifecycle Suite" parallel="false" thread-count="1">
+    <parameter name="deviceUdid" value="${ANDROID_DEVICE_UDID}"/>
+
+    <test name="Business Lifecycle Tests" preserve-order="true">
+        <groups>
+            <run>
+                <include name="business-lifecycle"/>
+                <exclude name="gated,one-time,verification,payment-setup,account-bootstrap,destructive,smoke,regression"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.e2e"/>
+        </packages>
+    </test>
+</suite>

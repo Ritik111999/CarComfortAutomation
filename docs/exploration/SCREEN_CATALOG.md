@@ -6,6 +6,10 @@
 >
 > ## Smoke verification (2026-09-22 — CustomerNavigationSmokeTest + CustomerLoginSmokeTest GREEN 2/2)
 > VERIFIED on device: AND-CUST-HOME-001, AND-CUST-SVC-CARWASH-001 (step 1; EV/Combo mapped), AND-CUST-BOOKINGS-001, AND-CUST-ACTIVE-001, AND-CUST-SETTINGS-001/002, AND-CUST-SUPPORT-001, AND-CUST-PROFILE-001, AND-SHARED-LOGIN-001 (post-logout). Mapping-only (not in smoke): EV/Combo wizard execution, customer bell, wizard steps 2-4, customer booking detail.
+>
+> ## Provider smoke verification (2026-09-22 — ProviderNavigationSmokeTest + ProviderLoginSmokeTest GREEN 2/2, 102.9s)
+> VERIFIED on device: AND-PROV-HOME-001 (greeting poll), AND-PROV-PROFILE-001 (badge+onboarding), AND-PROV-BOOKINGS-001 (filter+cards; empty fallback armed), AND-PROV-REQDETAIL-001/002 (read-only meta), AND-PROV-WALLET-001 (LIVE balances view-only — Stripe gate gone in backend; amounts masked in docs), AND-PROV-SETTINGS-001/002, AND-PROV-HELP-001, AND-SHARED-LOGIN-001/ROLE (either-marker logout).
+> Provider logout: settings Logout+Okay → LOGIN form OR ROLE SELECTION (back-stack-dependent; same either-marker contract as customer). Greeting/login-title linger races fixed via absence/presence polls (no expectation change).
 
 ## Shared
 

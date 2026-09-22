@@ -74,9 +74,29 @@ public final class ProviderAuthFlow extends BaseBusinessFlow {
         logBusinessCheckpoint("LOGIN_DONE", "Provider login screen dismissed");
     }
 
+    /**
+     * True once the login screen is gone. Polls for ABSENCE (up to the short
+     * wait) instead of a single presence probe: right after submit the login
+     * title node can linger invisibly in the hierarchy while home builds
+     * (evidence 20260922_143723_361: home rendered, title still present),
+     * which a one-shot check misreads as "still logged out".
+     */
     public boolean isAuthenticated() {
         try {
-            return !login.isScreenDisplayed();
+            io.appium.java_client.android.AndroidDriver driver = driverManager.getDriver();
+            org.openqa.selenium.By loginMarker = login.getUniqueLocator();
+            waits.waitShort(ignored -> {
+                java.util.List<org.openqa.selenium.WebElement> found = driver.findElements(loginMarker);
+                if (found.isEmpty()) {
+                    return Boolean.TRUE;
+                }
+                try {
+                    return found.get(0).isDisplayed() ? null : Boolean.TRUE;
+                } catch (Exception gone) {
+                    return Boolean.TRUE;
+                }
+            });
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -85,10 +105,34 @@ public final class ProviderAuthFlow extends BaseBusinessFlow {
     /** Verifies the provider home with real business evidence (no job actions). */
     public void verifyProviderHome(String displayName) {
         captureCheckpointEvidence("provider_home");
-        assertBusinessRule(home.isGreetingShown(displayName),
+        assertBusinessRule(awaitGreeting(displayName),
                 "Personalized provider greeting shown for " + displayName);
         logBusinessCheckpoint("HOME_VERIFIED", "Provider home verified for " + displayName);
         finalizeAssertions();
+    }
+
+    /**
+     * Greeting poll: after login submit the home builds async and single-shot
+     * presence probes race the transition (suite-sequential evidence
+     * 20260922_144345_226: login form captured 1s before home rendered).
+     * Polls up to 15s; still fails loudly if the greeting never appears.
+     */
+    private boolean awaitGreeting(String displayName) {
+        io.appium.java_client.android.AndroidDriver driver = driverManager.getDriver();
+        org.openqa.selenium.By greeting = home.greetingFor(displayName);
+        final boolean[] seen = {false};
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(15))
+                    .pollInterval(java.time.Duration.ofMillis(500))
+                    .ignoreExceptions()
+                    .until(() -> {
+                        seen[0] = !driver.findElements(greeting).isEmpty();
+                        return seen[0];
+                    });
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            // seen[0] stays false -> assertion reports it
+        }
+        return seen[0];
     }
 
     /** Opens the provider profile via avatar (logout path discovery). */
@@ -126,16 +170,45 @@ public final class ProviderAuthFlow extends BaseBusinessFlow {
     }
 
     /**
-     * Logs out from the settings tab and verifies return to the login form.
-     * Discovered behavior (2026-09-22): provider logout lands on the LOGIN form,
-     * unlike customer logout which returns to role selection. Authorized teardown.
+     * Logs out from the settings tab. Verified behavior (2026-09-22): the
+     * destination after Logout + Okay is the logged-out auth area but varies
+     * by back-stack — LOGIN form (mapping evidence AND-SHARED-LOGIN-002/004)
+     * or ROLE SELECTION (suite evidence 20260922_144319_706). The assertion
+     * accepts either marker instead of overfitting one run (same lesson as
+     * the customer logout contract). Authorized teardown.
      */
     public void logout() {
         settings.tapLogOut();
-        login.waitForScreenLoadedLong();
+        io.appium.java_client.android.AndroidDriver driver = driverManager.getDriver();
+        org.openqa.selenium.By roleTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Select your role");
+        org.openqa.selenium.By loginTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Welcome to Car Comfort");
+        final boolean[] seen = {false};
+        final String[] where = {""};
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(30))
+                    .pollInterval(java.time.Duration.ofSeconds(1))
+                    .ignoreExceptions()
+                    .until(() -> {
+                        if (!driver.findElements(loginTitle).isEmpty()) {
+                            seen[0] = true;
+                            where[0] = "login form";
+                            return true;
+                        }
+                        if (!driver.findElements(roleTitle).isEmpty()) {
+                            seen[0] = true;
+                            where[0] = "role selection";
+                            return true;
+                        }
+                        return false;
+                    });
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            // seen[0] stays false -> assertion below reports it
+        }
         captureCheckpointEvidence("provider_logged_out");
-        assertBusinessRule(login.confirmPresent(), "Returned to login form after provider logout");
-        logBusinessCheckpoint("LOGOUT_DONE", "Provider logged out cleanly");
+        assertBusinessRule(seen[0], "Provider reaches a logged-out auth state after logout");
+        logBusinessCheckpoint("LOGOUT_DONE", "Provider logged out cleanly (" + where[0] + ")");
         finalizeAssertions();
     }
 }

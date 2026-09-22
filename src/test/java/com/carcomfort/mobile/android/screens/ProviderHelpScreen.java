@@ -11,6 +11,7 @@ import org.openqa.selenium.By;
 public final class ProviderHelpScreen extends BaseAndroidScreen {
 
     private static final By TITLE = LocatorFactory.accessibilityId("Need Help?");
+    private static final By SUBTITLE = LocatorFactory.accessibilityId("How we can help you?");
 
     public ProviderHelpScreen(AndroidDriverManager driverManager) {
         super(driverManager);
@@ -24,5 +25,9 @@ public final class ProviderHelpScreen extends BaseAndroidScreen {
     @Override
     public By getUniqueLocator() {
         return TITLE;
+    }
+
+    public boolean isHelpContentShown() {
+        return !driverManager.getDriver().findElements(SUBTITLE).isEmpty();
     }
 }

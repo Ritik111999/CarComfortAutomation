@@ -32,7 +32,21 @@ public final class ProviderBookingsScreen extends BaseAndroidScreen {
         return driverManager.getDriver().findElements(VIEW_DETAILS).size();
     }
 
+    public boolean isFilterAllShown() {
+        return !driverManager.getDriver().findElements(FILTER_ALL).isEmpty();
+    }
+
     public void openFirstDetail() {
         click(VIEW_DETAILS, "First View Service Details");
+    }
+
+    /** Indexed detail entry for correlation scans (never blind position in tests). */
+    public void openDetailAt(int index) {
+        var cards = driverManager.getDriver().findElements(VIEW_DETAILS);
+        if (index < 0 || index >= cards.size()) {
+            throw new IllegalStateException("Booking card " + index + " unavailable (found " + cards.size() + ")");
+        }
+        cards.get(index).click();
+        log.debug("Opened booking detail at index {}", index);
     }
 }

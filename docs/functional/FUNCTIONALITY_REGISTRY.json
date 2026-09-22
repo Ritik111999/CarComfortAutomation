@@ -1,0 +1,148 @@
+{
+  "appVersion": "1.1.1",
+  "functions": [
+    {
+      "functionId": "F-BOOK-WIZARD",
+      "platform": "Android",
+      "role": "CUSTOMER",
+      "module": "booking",
+      "name": "Booking wizard traversal",
+      "discoveryStatus": "UNDERSTOOD",
+      "automationStatus": "MODELLED",
+      "verificationStatus": "VERIFIED",
+      "gated": false
+    },
+    {
+      "functionId": "F-BOOK-CREATE",
+      "platform": "Android",
+      "role": "CUSTOMER",
+      "module": "booking",
+      "name": "Create+submit test booking",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-BOOK-RECEIVE",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "bookings",
+      "name": "Provider receipt",
+      "discoveryStatus": "UNDERSTOOD",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": false
+    },
+    {
+      "functionId": "F-BOOK-ACCEPT",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "bookings",
+      "name": "Provider accept",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-BOOK-REJECT",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "bookings",
+      "name": "Provider reject (separate lifecycle)",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-SVC-PROGRESS",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "service",
+      "name": "Service progression",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-SVC-COMPLETE",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "service",
+      "name": "Service completion",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-PAY-ANALYZE",
+      "platform": "Android",
+      "role": "BOTH",
+      "module": "payment",
+      "name": "Payment architecture",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-CANCEL-CUST-BEFORE",
+      "platform": "Android",
+      "role": "CUSTOMER",
+      "module": "booking",
+      "name": "Cancel before accept",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-CANCEL-CUST-AFTER",
+      "platform": "Android",
+      "role": "CUSTOMER",
+      "module": "booking",
+      "name": "Cancel after accept",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-CANCEL-PROV",
+      "platform": "Android",
+      "role": "PROVIDER",
+      "module": "booking",
+      "name": "Provider cancel",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    },
+    {
+      "functionId": "F-BOOK-HISTORY",
+      "platform": "Android",
+      "role": "BOTH",
+      "module": "booking",
+      "name": "History visibility",
+      "discoveryStatus": "UNDERSTOOD",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": false
+    },
+    {
+      "functionId": "F-E2E-HAPPY-PATH",
+      "platform": "Android",
+      "role": "BOTH",
+      "module": "e2e",
+      "name": "CC-E2E-ACCEPT-001 happy path",
+      "discoveryStatus": "UNKNOWN",
+      "automationStatus": "UNKNOWN",
+      "verificationStatus": "UNKNOWN",
+      "gated": true
+    }
+  ]
+}

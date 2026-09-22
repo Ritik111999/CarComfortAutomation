@@ -24,7 +24,16 @@
 - ANDROID_HOME=/Users/ritik/Library/Android/sdk, ADB present, 1 authorized device (c68e***)
 - Appium MCP 1.94.3 + @appium/mcp-documentation 1.0.14 installed globally; workspace config `.agents/mcp_config.json` (NO_UI, docs, evidence ON; vision OFF)
 
-## Coverage snapshot (2026-09-22 — CUSTOMER SMOKE GREEN)
+## Coverage snapshot (2026-09-22 — PROVIDER SMOKE GREEN)
+- Provider smoke: `ProviderLoginSmokeTest` + `ProviderNavigationSmokeTest` GREEN 2/2 in one device session (102.9s)
+  - Exec: 2026-09-22 ~14:44–14:46 UTC+5:30; device 22021211RI Android 14; app io.carcomfort.app v1.1.1
+  - Sequence verified: login → home (greeting poll) → profile (badge+onboarding) → BACK → bookings (filter+cards) → detail (read-only meta) → BACK → home-tab → wallet (live balances view-only) → settings (payment row, no entry) → help (read-only) → settings → logout → session-end
+  - Backend variation observed: wallet Stripe gate GONE (verification completed outside automation); live balance/pending/payment-history rows render async — flow waits for body, asserts view-only, amounts masked in docs, zero financial taps
+  - Logout contract: provider settings-logout lands on LOGIN form OR ROLE SELECTION (back-stack-dependent; evidence 20260922_144319_706) — either-marker fix, same lesson as customer; provider flow keeps its own contract
+  - Repairs (automation-only): `isAuthenticated` absence-poll (login-title linger race, evidence 20260922_143723_361), greeting 15s poll (suite-sequential slow auth), wallet async-body wait; `ProviderBookingsScreen.isFilterAllShown`, `ProviderHelpScreen.isHelpContentShown` helpers
+  - Cross-role check: `CustomerLoginSmokeTest` GREEN after provider work (customer→provider→customer isolation holds; no shared-code changes — BottomNavComponent/base untouched)
+  - Reports: fresh Extent/PDF from this run (not Customer reports)
+- Customer smoke retained GREEN (2/2 earlier same day; untouched this turn — zero customer files modified).
 - Customer smoke: `CustomerLoginSmokeTest` + `CustomerNavigationSmokeTest` GREEN 2/2 in one device session (89.46s)
   - Exec: 2026-09-22 ~14:27–14:29 UTC+5:30; device 22021211RI Android 14; app io.carcomfort.app v1.1.1
   - Sequence verified: login → home (greeting + cards) → Car Wash wizard step 1 (Next untouched) → bookings (filter + cards) → active (empty state) → settings (core rows, no gated entry) → support (read-only) → profile (payment row, PII masked) → logout → login form

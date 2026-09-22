@@ -43,15 +43,20 @@ FLOW_ID:
 
 ## Provider Flows
 
-### FLOW-PROV-AUTH-001 — Provider login → home → profile → settings → logout
-- role: PROVIDER | status: AUTOMATED (`ProviderAuthFlow`, `ProviderLoginSmokeTest`, verified prior run; session-restore reused this run)
+### FLOW-PROV-AUTH-001 — Provider login → home → profile → settings → logout (VERIFIED 2026-09-22)
+- role: PROVIDER | status: AUTOMATED + VERIFIED (`ProviderAuthFlow`, `ProviderLoginSmokeTest` GREEN; logout accepts login-form OR role-select markers — back-stack-dependent, same lesson as customer)
 ### FLOW-PROV-BOOKINGS-001 — View My Bookings → booking detail (mapped, read-only)
 - steps: home tab1 → My Bookings (All, 2 Completed) → View Service Details → detail top + route plan → BACK
-- screens: AND-PROV-BOOKINGS-001 → AND-PROV-REQDETAIL-001/002 | status: MAPPED + MODELLED (no test yet; no mutations)
+- screens: AND-PROV-BOOKINGS-001 → AND-PROV-REQDETAIL-001/002 | status: AUTOMATED + VERIFIED (`ProviderNavigationSmokeTest` GREEN; empty-state fallback armed; no mutations)
 ### FLOW-PROV-WALLET-001 — View wallet gate (mapped, presence-only)
-- steps: home tab2 → My Wallet → Stripe gate shown → stop | status: MAPPED (GATED_CASE required to proceed)
+- steps: home tab2 → My Wallet → live balances view-only (Stripe gate gone in backend 2026-09-22; async-body wait added) → stop | status: AUTOMATED + VERIFIED (`ProviderNavigationSmokeTest` GREEN; zero financial taps)
+### FLOW-PROV-NAV-001 — Provider safe navigation smoke (VERIFIED 2026-09-22)
+- role: PROVIDER | `ProviderNavigationFlow` + `ProviderNavigationSmokeTest` GREEN (single session 64.91s; full provider package 2/2 GREEN 102.9s)
+- sequence: login → home → profile → BACK → bookings → detail (if cards) → BACK → home-tab → wallet → settings → help → home-tab → settings → logout → session-end
+- repairs: `isAuthenticated` absence-poll (login-title linger race), greeting 15s poll (suite-sequential slow auth), wallet async-body wait (gate→live-balances backend variation)
+
 ### FLOW-PROV-SETTINGS-001 — Settings review → authorized logout (mapped + executed 1x)
-- steps: home tab3 → settings top → scroll → Logout + Okay → login | status: MAPPED + EXECUTED (role transition only)
+- steps: home tab3 → settings top → scroll → Logout + Okay → auth area (login OR role-select) | status: AUTOMATED + VERIFIED (`ProviderNavigationSmokeTest` GREEN; teardown only)
 
 ---
 

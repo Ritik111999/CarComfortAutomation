@@ -57,6 +57,7 @@ artifacts/reports/
 artifacts/evidence/
 artifacts/device-locks/
 artifacts/screenshots/
+artifacts/runtime/
 ${sys:artifact.dir}/
 ${user.dir}/
 screenshots/

@@ -63,8 +63,9 @@ FLOW_ID:
 
 ## Provider Gated Flows
 
-### GATE-PROV-STRIPE-001 — Complete Stripe verification
-- category: PAYMENT_SETUP + VERIFICATION | screen: AND-PROV-WALLET-001 (presence-only, never tapped)
+### GATE-PROV-STRIPE-001 — Stripe verification (backend-completed, no automation action)
+- category: PAYMENT_SETUP + VERIFICATION | screen: AND-PROV-WALLET-001
+- observed 2026-09-22: gate text gone; wallet renders live balances/payment-history async (view-only verified, amounts masked, zero taps). Verification completed outside automation; policy gates remain for any future Stripe/Withdraw/bank action.
 ### GATE-PROV-JOBS-001 — Accept / Reject / Complete / Cancel (policy-gated; no live jobs observed)
 ### GATE-PROV-ACCOUNT-001 — Delete Account (DESTRUCTIVE, settings row presence-only)
 
