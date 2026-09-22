@@ -1,0 +1,19 @@
+# Safe, reversible test data only. Secrets come from environment variables, never committed.
+customer:
+  displayName: "Regression Customer"
+  email: "${CUSTOMER_TEST_EMAIL}"
+  phone: "${CUSTOMER_TEST_PHONE}"
+provider:
+  displayName: "Regression Provider"
+  email: "${PROVIDER_TEST_EMAIL}"
+  phone: "${PROVIDER_TEST_PHONE}"
+admin:
+  displayName: "Regression Admin"
+  email: "${ADMIN_TEST_EMAIL}"
+booking:
+  serviceQuery: "Car Wash"
+  city: "Test City"
+  notes: "Automated regression booking (safe test data)"
+search:
+  queries: ["Car Wash", "Detailing", "AC Service"]
+  cityFilter: "Test City"

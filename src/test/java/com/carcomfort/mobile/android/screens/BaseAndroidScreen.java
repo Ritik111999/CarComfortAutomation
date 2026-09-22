@@ -44,6 +44,16 @@ public abstract class BaseAndroidScreen {
         log.debug("Screen loaded: {}", getScreenName());
     }
 
+    /**
+     * Long-wait variant for cold-start / role-transition navigation where Flutter
+     * semantics rebuild plus first-launch network activity can exceed the default timeout.
+     */
+    public void waitForScreenLoadedLong() {
+        waits.waitLong(d -> org.openqa.selenium.support.ui.ExpectedConditions
+                .visibilityOfElementLocated(getUniqueLocator()).apply(driverManager.getDriver()));
+        log.debug("Screen loaded (long wait): {}", getScreenName());
+    }
+
     public boolean isScreenDisplayed() {
         try {
             waits.waitShort(ctx -> driverManager.getDriver().findElements(getUniqueLocator()).stream().findFirst().orElse(null));

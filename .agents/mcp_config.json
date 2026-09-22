@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "appium-mcp": {
+      "command": "/opt/homebrew/bin/appium-mcp",
+      "args": [],
+      "env": {
+        "ANDROID_HOME": "/Users/ritik/Library/Android/sdk",
+        "NO_UI": "true",
+        "APPIUM_MCP_DOCS_ENABLED": "true",
+        "APPIUM_MCP_EVIDENCE": "true",
+        "SCREENSHOTS_DIR": "/Users/ritik/Documents/CarComfortAutomation/artifacts/evidence/mcp-screenshots"
+      }
+    }
+  }
+}

@@ -40,7 +40,7 @@ public final class DeviceLockManager {
     private final long staleLockCleanupSeconds;
     private final Map<String, ReentrantLock> localLocks = new ConcurrentHashMap<>();
     private final Map<String, LocalDateTime> lockHeartbeats = new ConcurrentHashMap<>();
-    private Thread heartbeatThread;
+    private java.util.concurrent.ScheduledExecutorService heartbeatScheduler;
     private volatile boolean running = false;
 
     public DeviceLockManager() {
@@ -98,25 +98,33 @@ public final class DeviceLockManager {
         });
         return resolved;
     }
-            Files.createDirectories(lockDir);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to create lock directory: " + lockDir, e);
-        }
-    }
 
     public void start() {
         if (running) return;
         running = true;
-        heartbeatThread = new Thread(this::heartbeatLoop, "DeviceLock-Heartbeat");
-        heartbeatThread.setDaemon(true);
-        heartbeatThread.start();
+        // Background lock heartbeat via scheduler (not test synchronization;
+        // therefore exempt from the no-Thread.sleep rule governing test waits).
+        heartbeatScheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "DeviceLock-Heartbeat");
+            t.setDaemon(true);
+            return t;
+        });
+        heartbeatScheduler.scheduleAtFixedRate(() -> {
+            try {
+                updateHeartbeats();
+                cleanupStaleLocks();
+            } catch (Exception e) {
+                log.error("Error in heartbeat loop", e);
+            }
+        }, heartbeatIntervalSeconds, heartbeatIntervalSeconds, java.util.concurrent.TimeUnit.SECONDS);
         log.info("Device lock manager started for owner: {}", ownerId);
     }
 
     public void stop() {
         running = false;
-        if (heartbeatThread != null) {
-            heartbeatThread.interrupt();
+        if (heartbeatScheduler != null) {
+            heartbeatScheduler.shutdownNow();
+            heartbeatScheduler = null;
         }
         releaseAllLocks();
         log.info("Device lock manager stopped");
@@ -241,21 +249,6 @@ public final class DeviceLockManager {
 
     private boolean isStale(DeviceLock lock) {
         return lock.timestamp().until(LocalDateTime.now(), ChronoUnit.SECONDS) > staleLockCleanupSeconds;
-    }
-
-    private void heartbeatLoop() {
-        while (running) {
-            try {
-                Thread.sleep(heartbeatIntervalSeconds * 1000L);
-                updateHeartbeats();
-                cleanupStaleLocks();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            } catch (Exception e) {
-                log.error("Error in heartbeat loop", e);
-            }
-        }
     }
 
     private void updateHeartbeats() {

@@ -1,0 +1,18 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Car Comfort Provider Regression Suite" parallel="false" thread-count="1">
+    <parameter name="deviceUdid" value="${ANDROID_DEVICE_UDID}"/>
+
+    <test name="Android Provider Regression" preserve-order="true">
+        <groups>
+            <run>
+                <include name="regression"/>
+                <include name="android"/>
+                <include name="provider"/>
+                <exclude name="gated,one-time,verification,payment-setup,account-bootstrap,destructive"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.carcomfort.tests.android.provider"/>
+        </packages>
+    </test>
+</suite>

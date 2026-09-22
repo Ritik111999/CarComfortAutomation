@@ -1,0 +1,18 @@
+# Gated flows are NEVER executed without RUN_GATED_TESTS=true + GATED_CASE=<case>.
+# This file only documents the gate inventory; it contains no credentials.
+gates:
+  - case: "CUSTOMER_SIGNUP"
+    categories: ["GATED", "ONE_TIME", "ACCOUNT_BOOTSTRAP"]
+    description: "First-time customer account creation + OTP verification"
+  - case: "PROVIDER_ONBOARDING"
+    categories: ["GATED", "ONE_TIME", "ACCOUNT_BOOTSTRAP", "VERIFICATION"]
+    description: "Provider account creation + KYC/identity verification"
+  - case: "CARD_SETUP"
+    categories: ["GATED", "PAYMENT_SETUP"]
+    description: "Real card addition via Stripe"
+  - case: "STRIPE_ONBOARDING"
+    categories: ["GATED", "PAYMENT_SETUP", "VERIFICATION"]
+    description: "Stripe onboarding + verification"
+  - case: "ACCOUNT_DELETE"
+    categories: ["GATED", "DESTRUCTIVE"]
+    description: "Irreversible account deletion"

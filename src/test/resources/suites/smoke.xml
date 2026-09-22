@@ -11,6 +11,8 @@
         </groups>
         <packages>
             <package name="com.carcomfort.tests.android.smoke"/>
+            <package name="com.carcomfort.tests.android.customer"/>
+            <package name="com.carcomfort.tests.android.provider"/>
         </packages>
     </test>
 </suite>

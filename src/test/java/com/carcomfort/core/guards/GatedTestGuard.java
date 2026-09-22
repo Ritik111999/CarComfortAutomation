@@ -79,7 +79,7 @@ public final class GatedTestGuard {
     }
 
     public void verifyAuthorization(String testName, String category) {
-        verifyAuthorization(testName, category);
+        verifyAuthorization(testName, new String[]{category});
     }
 
     public boolean isGated(String... categories) {

@@ -118,6 +118,18 @@ public final class AndroidDriverManager implements DriverManager<AndroidDriver> 
             deviceThreadLocal.set(device);
             sessionInitialized = true;
 
+            // A fresh session must foreground the app under test: with noReset an
+            // existing task may sit backgrounded (BACK exits to launcher), and
+            // session creation alone does not reliably resume it (verified).
+            try {
+                String foregroundPackage = FrameworkConfig.getString("carcomfort.android.app.package");
+                if (foregroundPackage != null && !foregroundPackage.isBlank()) {
+                    driver.activateApp(foregroundPackage);
+                }
+            } catch (Exception e) {
+                log.debug("Foreground activation hint failed (non-fatal)", e);
+            }
+
             log.info("Android driver initialized successfully. Session ID: {}", driver.getSessionId());
             return driver;
 

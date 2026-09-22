@@ -377,7 +377,28 @@ public final class PdfReportGenerator {
 
     private String truncate(String text, int maxLength) {
         if (text == null) return "";
-        return text.length() > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
+        String sanitized = sanitizeForPdf(text);
+        return sanitized.length() > maxLength ? sanitized.substring(0, maxLength - 3) + "..." : sanitized;
+    }
+
+    /**
+     * PDFBox Helvetica/WinAnsi cannot encode control chars (notably newlines from
+     * accessibility descs like "My Vehicles\n3") or non-Latin glyphs. Flatten them
+     * so report generation never fails on real product text (verified 2026-09-22).
+     */
+    private String sanitizeForPdf(String text) {
+        StringBuilder sb = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c == '\n' || c == '\r' || c == '\t') {
+                sb.append(" / ");
+            } else if (c < 0x20 || c > 0xFF) {
+                sb.append('?');
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     private String maskUdid(String udid) {

@@ -16,39 +16,46 @@ import com.carcomfort.core.reporting.PdfReportGenerator;
 import com.carcomfort.core.testdata.TestDataManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.ITestContext;
-import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
+import org.testng.ITestResult;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Base test class providing common setup/teardown for all tests.
+ *
+ * <p>Suite-scoped resources are static so they are shared across all test-class
+ * instances (TestNG instantiates each test class separately; instance fields set
+ * in {@code @BeforeSuite} would otherwise be null in sibling classes).
  */
 public abstract class BaseTest {
     protected static final Logger log = LoggerFactory.getLogger(BaseTest.class);
 
-    protected DeviceLockManager deviceLockManager;
-    protected DeviceManager deviceManager;
-    protected AppiumServerManager appiumServerManager;
-    protected AndroidDriverManager androidDriverManager;
-    protected WebDriverManager customerWebDriverManager;
-    protected WebDriverManager adminWebDriverManager;
-    protected EvidenceCollector evidenceCollector;
+    private static final Object SUITE_LOCK = new Object();
+    private static volatile boolean suiteInitialized = false;
+
+    protected static DeviceLockManager deviceLockManager;
+    protected static DeviceManager deviceManager;
+    protected static AppiumServerManager appiumServerManager;
+    protected static AndroidDriverManager androidDriverManager;
+    protected static WebDriverManager customerWebDriverManager;
+    protected static WebDriverManager adminWebDriverManager;
+    protected static EvidenceCollector evidenceCollector;
+    protected static TestLogger suiteLogger;
+    protected static ReportEngine reportEngine;
+    protected static PdfReportGenerator pdfReportGenerator;
+    protected static TestDataManager testDataManager;
+
     protected TestLogger testLogger;
-    protected ReportEngine reportEngine;
-    protected PdfReportGenerator pdfReportGenerator;
-    protected TestDataManager testDataManager;
     protected SafeAssertions assertions;
 
     protected DeviceInfo currentDevice;
@@ -58,66 +65,82 @@ public abstract class BaseTest {
 
     @BeforeSuite(alwaysRun = true)
     public void suiteSetup() {
-        log.info("=== SUITE SETUP START ===");
-        FrameworkConfig.getExecutionId(); // Initialize config
+        synchronized (SUITE_LOCK) {
+            if (suiteInitialized) {
+                return;
+            }
+            log.info("=== SUITE SETUP START ===");
+            FrameworkConfig.getExecutionId(); // Initialize config
 
-        deviceLockManager = new DeviceLockManager();
-        deviceLockManager.start();
+            deviceLockManager = new DeviceLockManager();
+            deviceLockManager.start();
 
-        deviceManager = new DeviceManager(deviceLockManager);
-        deviceManager.startAdbServer();
+            deviceManager = new DeviceManager(deviceLockManager);
+            deviceManager.startAdbServer(); // idempotent; never killed here (shared host resource)
 
-        appiumServerManager = new AppiumServerManager();
-        androidDriverManager = new AndroidDriverManager(deviceLockManager, deviceManager, appiumServerManager);
+            appiumServerManager = new AppiumServerManager();
+            androidDriverManager = new AndroidDriverManager(deviceLockManager, deviceManager, appiumServerManager);
 
-        customerWebDriverManager = new WebDriverManager("customer");
-        adminWebDriverManager = new WebDriverManager("admin");
+            customerWebDriverManager = new WebDriverManager("customer");
+            adminWebDriverManager = new WebDriverManager("admin");
 
-        evidenceCollector = new EvidenceCollector();
-        testDataManager = new TestDataManager();
+            evidenceCollector = new EvidenceCollector();
+            testDataManager = new TestDataManager();
 
-        String suiteExecutionId = FrameworkConfig.getExecutionId();
-        testLogger = new TestLogger("Suite", suiteExecutionId);
-        reportEngine = new ReportEngine(evidenceCollector, testLogger);
-        pdfReportGenerator = new PdfReportGenerator(evidenceCollector);
-        pdfReportGenerator.startExecution();
+            String suiteExecutionId = FrameworkConfig.getExecutionId();
+            suiteLogger = new TestLogger("Suite", suiteExecutionId);
+            reportEngine = new ReportEngine(evidenceCollector, suiteLogger);
+            pdfReportGenerator = new PdfReportGenerator(evidenceCollector);
+            pdfReportGenerator.startExecution();
 
-        log.info("=== SUITE SETUP COMPLETE ===");
+            suiteInitialized = true;
+            log.info("=== SUITE SETUP COMPLETE ===");
+        }
     }
 
     @AfterSuite(alwaysRun = true)
     public void suiteTeardown() {
-        log.info("=== SUITE TEARDOWN START ===");
+        synchronized (SUITE_LOCK) {
+            if (!suiteInitialized) {
+                return;
+            }
+            log.info("=== SUITE TEARDOWN START ===");
 
-        pdfReportGenerator.endExecution();
-        Path pdfPath = pdfReportGenerator.generateReport();
-        log.info("PDF report generated: {}", pdfPath);
+            try {
+                pdfReportGenerator.endExecution();
+                Path pdfPath = pdfReportGenerator.generateReport();
+                log.info("PDF report generated: {}", pdfPath);
+            } catch (Exception e) {
+                log.warn("PDF report generation failed", e);
+            }
 
-        reportEngine.flush();
+            try {
+                reportEngine.flush();
+            } catch (Exception e) {
+                log.warn("Extent flush failed", e);
+            }
 
-        if (androidDriverManager != null) {
-            androidDriverManager.quitDriver();
+            if (androidDriverManager != null) {
+                androidDriverManager.quitDriver();
+            }
+            if (customerWebDriverManager != null) {
+                customerWebDriverManager.quitDriver();
+            }
+            if (adminWebDriverManager != null) {
+                adminWebDriverManager.quitDriver();
+            }
+
+            if (appiumServerManager != null) {
+                appiumServerManager.stop();
+            }
+
+            if (deviceLockManager != null) {
+                deviceLockManager.stop();
+            }
+
+            suiteInitialized = false;
+            log.info("=== SUITE TEARDOWN COMPLETE ===");
         }
-        if (customerWebDriverManager != null) {
-            customerWebDriverManager.quitDriver();
-        }
-        if (adminWebDriverManager != null) {
-            adminWebDriverManager.quitDriver();
-        }
-
-        if (appiumServerManager != null) {
-            appiumServerManager.stop();
-        }
-
-        if (deviceManager != null) {
-            deviceManager.killAdbServer();
-        }
-
-        if (deviceLockManager != null) {
-            deviceLockManager.stop();
-        }
-
-        log.info("=== SUITE TEARDOWN COMPLETE ===");
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -212,9 +235,14 @@ public abstract class BaseTest {
         String appPackage = FrameworkConfig.getString("carcomfort.android.app.package");
         String appVersion = "Unknown";
         try {
-            appVersion = androidDriverManager.getDriver().executeScript("mobile: shell", java.util.Map.of(
-                    "command", "dumpsys package " + appPackage + " | grep versionName"
-            )).toString();
+            Object out = androidDriverManager.getDriver().executeScript("mobile: shell", java.util.Map.of(
+                    "command", "dumpsys",
+                    "args", java.util.List.of("package", appPackage)));
+            java.util.regex.Matcher m =
+                    java.util.regex.Pattern.compile("versionName=(\\S+)").matcher(String.valueOf(out));
+            if (m.find()) {
+                appVersion = m.group(1);
+            }
         } catch (Exception ignored) {}
         reportEngine.setAppInfo(appPackage, appVersion);
         pdfReportGenerator.setDeviceInfo(currentDevice);

@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,7 +56,13 @@ public final class AppiumServerManager {
     private void startAppiumProcess() {
         try {
             String appiumCmd = findAppiumCommand();
-            ProcessBuilder pb = new ProcessBuilder(appiumCmd, "-p", String.valueOf(port), "-b", path);
+            java.util.List<String> cmd = new java.util.ArrayList<>(
+                    java.util.List.of(appiumCmd, "server", "-p", String.valueOf(port)));
+            if (path != null && !path.isBlank() && !path.equals("/")) {
+                cmd.add("--base-path");
+                cmd.add(path);
+            }
+            ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.redirectErrorStream(true);
             appiumProcess = pb.start();
 
@@ -97,39 +104,27 @@ public final class AppiumServerManager {
     }
 
     private void waitForServerReady() {
-        long startTime = System.currentTimeMillis();
-        long timeoutMs = startupTimeoutSeconds * 1000L;
-
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            if (isServerResponsive()) {
-                return;
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for Appium server", e);
-            }
+        try {
+            org.awaitility.Awaitility.await()
+                    .atMost(Duration.ofSeconds(startupTimeoutSeconds))
+                    .pollInterval(Duration.ofMillis(500))
+                    .ignoreExceptions()
+                    .until(this::isServerResponsive);
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            throw new RuntimeException("Appium server did not start within " + startupTimeoutSeconds + " seconds", e);
         }
-        throw new RuntimeException("Appium server did not start within " + startupTimeoutSeconds + " seconds");
     }
 
     private void waitForExternalServer() {
-        long startTime = System.currentTimeMillis();
-        long timeoutMs = startupTimeoutSeconds * 1000L;
-
-        while (System.currentTimeMillis() - startTime < timeoutMs) {
-            if (isServerResponsive()) {
-                return;
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for external Appium server", e);
-            }
+        try {
+            org.awaitility.Awaitility.await()
+                    .atMost(Duration.ofSeconds(startupTimeoutSeconds))
+                    .pollInterval(Duration.ofSeconds(1))
+                    .ignoreExceptions()
+                    .until(this::isServerResponsive);
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            throw new RuntimeException("External Appium server not responsive at " + serverUrl + " within " + startupTimeoutSeconds + " seconds", e);
         }
-        throw new RuntimeException("External Appium server not responsive at " + serverUrl + " within " + startupTimeoutSeconds + " seconds");
     }
 
     private boolean isServerResponsive() {
@@ -176,7 +171,8 @@ public final class AppiumServerManager {
 
     private URL buildServerUrl() {
         try {
-            return new URL("http", host, port, path);
+            String base = (path == null || path.isBlank()) ? "" : path;
+            return new URL("http", host, port, base);
         } catch (Exception e) {
             throw new RuntimeException("Invalid Appium server URL configuration", e);
         }

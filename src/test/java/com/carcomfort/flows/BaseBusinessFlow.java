@@ -84,11 +84,73 @@ public abstract class BaseBusinessFlow {
         assertions.assertAll();
     }
 
-    protected void sleepMs(long ms) {
+    /** Entry points the app can settle on after (re)start with persisted state. */
+    public enum EntryState { ROLE, LOGIN, HOME_CUSTOMER, HOME_PROVIDER }
+
+    /**
+     * Clears transient UI state without touching app data: BACK dismisses any
+     * keyboard/autofill overlay left by earlier runs (open overlays blind
+     * UiAutomator2 multi-window lookup — verified), then a process restart
+     * returns the app to a deterministic entry point (a persisted login restores
+     * straight to HOME).
+     */
+    protected void settleDeviceState() {
         try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            driverManager.getDriver().navigate().back();
+        } catch (Exception ignored) {
         }
+        try {
+            driverManager.getDriver().navigate().back();
+        } catch (Exception ignored) {
+        }
+        driverManager.restartApp();
+        logBusinessCheckpoint("APP_RESTART", "App restarted to deterministic entry state (no data cleared)");
+    }
+
+    /**
+     * Polls (main-thread driver reference, since Awaitility polls off-thread and
+     * the driver is ThreadLocal) for the role screen, login screen, or
+     * authenticated home for up to 30s. Cold starts may show a splash plus
+     * first-launch network init first.
+     */
+    protected EntryState awaitEntryState() {
+        io.appium.java_client.android.AndroidDriver driver = driverManager.getDriver();
+        org.openqa.selenium.By roleTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Select your role");
+        org.openqa.selenium.By loginTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Welcome to Car Comfort");
+        org.openqa.selenium.By homeCustomerTitle =
+                com.carcomfort.mobile.android.LocatorFactory.accessibilityId("Enter Service Details");
+        org.openqa.selenium.By homeProviderTitle =
+                com.carcomfort.mobile.android.LocatorFactory.uiAutomator(
+                        "new UiSelector().descriptionContains(\"Driver!\")");
+        final EntryState[] found = {null};
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(30))
+                    .pollInterval(java.time.Duration.ofSeconds(1))
+                    .ignoreExceptions()
+                    .until(() -> {
+                        if (!driver.findElements(homeCustomerTitle).isEmpty()) {
+                            found[0] = EntryState.HOME_CUSTOMER;
+                            return true;
+                        }
+                        if (!driver.findElements(homeProviderTitle).isEmpty()) {
+                            found[0] = EntryState.HOME_PROVIDER;
+                            return true;
+                        }
+                        if (!driver.findElements(loginTitle).isEmpty()) {
+                            found[0] = EntryState.LOGIN;
+                            return true;
+                        }
+                        if (!driver.findElements(roleTitle).isEmpty()) {
+                            found[0] = EntryState.ROLE;
+                            return true;
+                        }
+                        return false;
+                    });
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            throw new IllegalStateException("No known entry state (role/login/home) within 30s");
+        }
+        return found[0];
     }
 }

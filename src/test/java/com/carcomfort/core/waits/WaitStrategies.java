@@ -64,6 +64,11 @@ public final class WaitStrategies {
         }
     }
 
+    /**
+     * NOTE: FluentWait instances are constructed without an input driver, so generic
+     * {@code waitFor(Function)} lambdas MUST capture their driver explicitly and ignore
+     * the lambda argument. All driver-taking helpers below bind the passed driver.
+     */
     public <T> T waitFor(Function<WebDriver, T> condition) {
         return defaultWait.until(condition);
     }
@@ -82,76 +87,108 @@ public final class WaitStrategies {
     }
 
     public WebElement waitForVisible(WebDriver driver, By locator) {
-        return waitFor(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(d));
+        return defaultWait.until(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(driver));
     }
 
     public WebElement waitForVisible(WebDriver driver, By locator, String description) {
-        return waitFor(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(d), description);
+        log.debug("Waiting for visible: {}", description);
+        return defaultWait.until(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(driver));
     }
 
     public WebElement waitForVisible(org.openqa.selenium.SearchContext context, By locator) {
-        return waitFor(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(d));
+        return defaultWait.until(d -> {
+            List<WebElement> els = context.findElements(locator);
+            for (WebElement el : els) {
+                try {
+                    if (el.isDisplayed()) {
+                        return el;
+                    }
+                } catch (org.openqa.selenium.StaleElementReferenceException ignored) {
+                    return null;
+                }
+            }
+            return null;
+        });
     }
 
     public WebElement waitForVisible(org.openqa.selenium.SearchContext context, By locator, String description) {
-        return waitFor(d -> ExpectedConditions.visibilityOfElementLocated(locator).apply(d), description);
+        log.debug("Waiting for visible: {}", description);
+        return waitForVisible(context, locator);
     }
 
     public WebElement waitForClickable(WebDriver driver, By locator) {
-        return waitFor(d -> ExpectedConditions.elementToBeClickable(locator).apply(d));
+        return defaultWait.until(d -> ExpectedConditions.elementToBeClickable(locator).apply(driver));
     }
 
     public WebElement waitForClickable(WebDriver driver, By locator, String description) {
-        return waitFor(d -> ExpectedConditions.elementToBeClickable(locator).apply(d), description);
+        log.debug("Waiting for clickable: {}", description);
+        return defaultWait.until(d -> ExpectedConditions.elementToBeClickable(locator).apply(driver));
     }
 
     public WebElement waitForClickable(org.openqa.selenium.SearchContext context, By locator) {
-        return waitFor(d -> ExpectedConditions.elementToBeClickable(locator).apply(d));
+        return defaultWait.until(d -> {
+            List<WebElement> els = context.findElements(locator);
+            for (WebElement el : els) {
+                try {
+                    if (el.isDisplayed() && el.isEnabled()) {
+                        return el;
+                    }
+                } catch (org.openqa.selenium.StaleElementReferenceException ignored) {
+                    return null;
+                }
+            }
+            return null;
+        });
     }
 
     public WebElement waitForClickable(org.openqa.selenium.SearchContext context, By locator, String description) {
-        return waitFor(d -> ExpectedConditions.elementToBeClickable(locator).apply(d), description);
+        log.debug("Waiting for clickable: {}", description);
+        return waitForClickable(context, locator);
     }
 
     public WebElement waitForPresent(WebDriver driver, By locator) {
-        return waitFor(d -> ExpectedConditions.presenceOfElementLocated(locator).apply(d));
+        return defaultWait.until(d -> ExpectedConditions.presenceOfElementLocated(locator).apply(driver));
     }
 
     public List<WebElement> waitForAllPresent(WebDriver driver, By locator) {
-        return waitFor(d -> ExpectedConditions.presenceOfAllElementsLocatedBy(locator).apply(d));
+        return defaultWait.until(d -> ExpectedConditions.presenceOfAllElementsLocatedBy(locator).apply(driver));
     }
 
     public void waitForDisappeared(WebDriver driver, By locator) {
-        waitFor(d -> ExpectedConditions.invisibilityOfElementLocated(locator).apply(d));
+        defaultWait.until(d -> ExpectedConditions.invisibilityOfElementLocated(locator).apply(driver));
     }
 
     public void waitForDisappeared(WebDriver driver, By locator, String description) {
-        waitFor(d -> ExpectedConditions.invisibilityOfElementLocated(locator).apply(d), description);
+        log.debug("Waiting for disappeared: {}", description);
+        defaultWait.until(d -> ExpectedConditions.invisibilityOfElementLocated(locator).apply(driver));
     }
 
     public void waitForText(WebDriver driver, By locator, String expectedText) {
-        waitFor(d -> {
-            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(d);
+        defaultWait.until(d -> {
+            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(driver);
             return element != null && element.getText().contains(expectedText) ? element : null;
         });
     }
 
     public void waitForTextToChange(WebDriver driver, By locator, String previousText) {
-        waitFor(d -> {
-            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(d);
+        defaultWait.until(d -> {
+            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(driver);
             return element != null && !element.getText().equals(previousText) ? element : null;
         });
     }
 
     public void waitForAttribute(WebDriver driver, By locator, String attribute, String expectedValue) {
-        waitFor(d -> {
-            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(d);
+        defaultWait.until(d -> {
+            WebElement element = ExpectedConditions.visibilityOfElementLocated(locator).apply(driver);
             return element != null && expectedValue.equals(element.getAttribute(attribute)) ? element : null;
         });
     }
 
     public void waitForCondition(Predicate<WebDriver> condition, String description) {
-        waitFor(d -> condition.test(d) ? Boolean.TRUE : null, description);
+        log.debug("Waiting for condition: {}", description);
+        throw new UnsupportedOperationException(
+                "waitForCondition(Predicate) cannot bind a driver implicitly. "
+                        + "Use waitFor(driver -> condition.test(driver) ? Boolean.TRUE : null, description) with an explicit driver instead.");
     }
 
     public void waitForActivity(String expectedActivity) {

@@ -49,6 +49,10 @@
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+
+        <!-- Defaults: safe smoke suite; override with -DsuiteXmlFile=... -->
+        <suiteXmlFile>src/test/resources/suites/smoke.xml</suiteXmlFile>
+        <config.file></config.file>
     </properties>
 
     <dependencyManagement>
@@ -307,6 +311,9 @@
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+                    </suiteXmlFiles>
                     <systemPropertyVariables>
                         <config.file>${config.file}</config.file>
                     </systemPropertyVariables>
@@ -364,6 +371,30 @@
             <id>android-regression</id>
             <properties>
                 <suiteXmlFile>src/test/resources/suites/android-regression.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>customer-regression</id>
+            <properties>
+                <suiteXmlFile>src/test/resources/suites/customer-regression.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>provider-regression</id>
+            <properties>
+                <suiteXmlFile>src/test/resources/suites/provider-regression.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>admin-regression</id>
+            <properties>
+                <suiteXmlFile>src/test/resources/suites/admin-regression.xml</suiteXmlFile>
+            </properties>
+        </profile>
+        <profile>
+            <id>e2e-regression</id>
+            <properties>
+                <suiteXmlFile>src/test/resources/suites/e2e-regression.xml</suiteXmlFile>
             </properties>
         </profile>
         <profile>

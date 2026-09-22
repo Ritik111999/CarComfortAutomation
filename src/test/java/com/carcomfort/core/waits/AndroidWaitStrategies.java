@@ -127,11 +127,13 @@ public final class AndroidWaitStrategies {
         }, "keyboard to show");
     }
 
-    public void waitForNetworkIdle(int idleMs) {
-        try {
-            Thread.sleep(idleMs);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    public void waitForLoaderToDisappear(org.openqa.selenium.By loaderLocator) {
+        baseWaits.waitForDisappeared(driverManager.getDriver(), loaderLocator, "loader to disappear");
+    }
+
+    public void waitForNetworkIdle(org.openqa.selenium.By loaderLocator) {
+        // True network-idle detection requires an app-specific loader/progress indicator.
+        // Never use fixed sleeps: wait explicitly for the loader to disappear instead.
+        waitForLoaderToDisappear(loaderLocator);
     }
 }
