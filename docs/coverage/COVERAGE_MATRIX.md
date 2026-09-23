@@ -102,4 +102,31 @@
 | PWA | Admin | 0 | 0 | 0 | 0 | 0 |
 | **Total** | | **20+1 shared** | **4** | **12** | **0** | **5** |
 
-*Last Updated: 2026-09-22 (21 nodes / 22 edges in ANDROID_SCREEN_GRAPH.json; B-002 resolved; customer bell + wizard steps 2-4 + customer booking detail deferred; CustomerNavigationSmokeTest + CustomerLoginSmokeTest GREEN on device 2026-09-22 (2/2 in one session).*
+---
+
+## Functional Coverage (L0–L5) — SCREEN COVERAGE != FUNCTIONAL COVERAGE
+
+> Depth: L0 screen discovered · L1 navigation verified · L2 field/control behavior ·
+> L3 single-role functional workflow · L4 cross-role E2E workflow · L5 negative/error/recovery.
+> Smoke era proved mostly L1. Canonical function inventory: `docs/functional/FUNCTIONALITY_REGISTRY.md`
+> (+ `.json`). App v1.1.1 (io.carcomfort.app, versionCode 11). Commit 57cc051. 2026-09-23.
+
+| Function | Depth | Screen | Navigation | Function automated | Lifecycle E2E verified | Negative verified |
+|----------|-------|--------|------------|--------------------|------------------------|-------------------|
+| F-BOOK-WIZARD (wizard traversal) | L2 VERIFIED | VERIFIED | VERIFIED | MODELLED | n/a (no object) | L5 deferred (field rules documented, negative after happy path) |
+| F-BOOK-CREATE (customer submit) | L3 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (CustomerBookingFlow; awaiting authorized run) | pending (CC-E2E-ACCEPT-001 Phase 1) | deferred |
+| F-BOOK-RECEIVE (provider receipt) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ProviderBookingFlow.findLifecycleBooking) | pending (Phase 2) | n/a (read-only) |
+| F-BOOK-ACCEPT (provider accept) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ProviderBookingFlow.acceptCurrentBooking) | pending (Phases 3–4) | deferred |
+| F-BOOK-REJECT (separate lifecycle) | L4 UNKNOWN | VERIFIED | VERIFIED | UNKNOWN (NOT this milestone) | not started | deferred |
+| F-SVC-PROGRESS (progression) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ServiceExecutionFlow.progressOnce) | pending (Phase 5) | deferred |
+| F-SVC-COMPLETE (completion) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ServiceExecutionFlow.completeService) | pending (Phases 5–6) | deferred |
+| F-PAY-ANALYZE (payment arch) | L3 MODELLED (read-only) | VERIFIED | VERIFIED | MODELLED (PaymentValidationFlow; mutations FORBIDDEN) | pending (totals across roles) | deferred |
+| F-CANCEL-* (3 scenarios) | L4 MODELLED (scaffold) | VERIFIED | VERIFIED | MODELLED (BookingCancellationFlow; NOT this milestone) | not started | deferred |
+| F-BOOK-HISTORY (both roles) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (E2E Phase 6 + DONE) | pending | deferred |
+| F-E2E-HAPPY-PATH (CC-E2E-ACCEPT-001) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (BookingLifecycleE2ETest, 6 phases) | UNKNOWN (ledger at STARTED; awaiting RUN_BUSINESS_LIFECYCLE_TESTS=true + BUSINESS_CASE=BOOKING_LIFECYCLE_HAPPY_PATH) | L5 deferred until E2E stable |
+
+Booking-status evidence: Confirmed / Not Assigned (OBSERVED fresh card) · Completed (OBSERVED both roles) ·
+Cancelled by service provider (OBSERVED customer label) · Submitted-initial / Accepted / In-progress labels HYPOTHESIZED
+until CC-E2E-ACCEPT-001 renders them (see `docs/functional/BOOKING_STATUS_MATRIX.md`).
+
+*Last Updated: 2026-09-23 (functional depth split added; no screen re-analysis; app v1.1.1 unchanged).*
