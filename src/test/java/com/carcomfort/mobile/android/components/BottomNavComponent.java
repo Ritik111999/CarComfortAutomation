@@ -59,6 +59,10 @@ public final class BottomNavComponent extends BaseAndroidComponent {
     }
 
     public void tapTab(int index) {
+        waits.waitFor(d -> {
+            List<WebElement> current = tabs();
+            return (index >= 0 && index < current.size()) ? current : null;
+        }, "Bottom tab " + index + " to become available");
         List<WebElement> current = tabs();
         if (index < 0 || index >= current.size()) {
             throw new IllegalStateException(

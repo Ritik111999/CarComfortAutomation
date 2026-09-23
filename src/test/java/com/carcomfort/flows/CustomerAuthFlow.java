@@ -79,6 +79,10 @@ public final class CustomerAuthFlow extends BaseBusinessFlow {
         }
     }
 
+    public boolean isCustomerHomeActive() {
+        return home.isScreenDisplayed();
+    }
+
     /** Verifies the authenticated home state with real business evidence. */
     public void verifyCustomerHome(String displayName) {
         home.waitForScreenLoadedLong();

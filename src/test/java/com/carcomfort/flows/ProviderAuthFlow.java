@@ -70,8 +70,13 @@ public final class ProviderAuthFlow extends BaseBusinessFlow {
         logBusinessCheckpoint("LOGIN_SUBMIT", "Submitting provider login");
         login.loginAs(email, password);
         login.waitForLoginGone();
+        home.waitForScreenLoadedLong();
         captureCheckpointEvidence("provider_logged_in");
         logBusinessCheckpoint("LOGIN_DONE", "Provider login screen dismissed");
+    }
+
+    public boolean isProviderHomeActive() {
+        return home.isScreenDisplayed();
     }
 
     /**

@@ -28,7 +28,8 @@ import java.util.List;
 public final class ServiceExecutionFlow extends BaseBusinessFlow {
 
     private static final List<String> PROGRESSION_VERBS = List.of(
-            "Start", "Start Journey", "On The Way", "On the way", "Arrived",
+            "Arrived at service pickup location", "Arrived at pickup location", "Arrived",
+            "Start", "Start Journey", "On The Way", "On the way",
             "Start Service", "Begin Service", "Begin", "Resume");
     private static final List<String> COMPLETION_VERBS = List.of(
             "Complete", "Complete Service", "Finish", "Finish Service",
@@ -53,7 +54,11 @@ public final class ServiceExecutionFlow extends BaseBusinessFlow {
 
     /** Full current detail state for ledger + next-action decisions. */
     public List<String> readDetailState() {
-        detail.waitForScreenLoadedLong();
+        if (detail.isScreenDisplayed()) {
+            detail.waitForScreenLoadedLong();
+        } else {
+            waits.waitFor(d -> !allDescs().isEmpty(), "Service state descs to appear");
+        }
         List<String> descs = allDescs();
         captureCheckpointEvidence("lifecycle_svc_state");
         return descs;
@@ -121,12 +126,32 @@ public final class ServiceExecutionFlow extends BaseBusinessFlow {
                 return verb;
             }
         }
+        for (String verb : verbs) {
+            var found = driver.findElements(LocatorFactory.uiAutomator(
+                    "new UiSelector().descriptionContains(\"" + verb + "\")"));
+            if (!found.isEmpty()) {
+                try {
+                    String desc = found.get(0).getAttribute("content-desc");
+                    if (desc != null && !desc.isBlank()) {
+                        return desc;
+                    }
+                } catch (Exception ignored) {
+                }
+                return verb;
+            }
+        }
         return null;
     }
 
     private void tapVerbOnce(String verb) {
         var driver = driverManager.getDriver();
-        driver.findElement(LocatorFactory.accessibilityId(verb)).click();
+        var found = driver.findElements(LocatorFactory.accessibilityId(verb));
+        if (!found.isEmpty()) {
+            found.get(0).click();
+        } else {
+            driver.findElement(LocatorFactory.uiAutomator(
+                    "new UiSelector().descriptionContains(\"" + verb + "\")")).click();
+        }
         logBusinessCheckpoint("SVC_TAP", "Service verb tapped once: " + verb);
     }
 

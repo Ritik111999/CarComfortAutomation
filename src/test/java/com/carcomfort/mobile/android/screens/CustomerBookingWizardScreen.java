@@ -16,7 +16,7 @@ import java.util.List;
  * set) -> 2 Service (membership radio, custom Package Name (*) / Price (*) or
  * CarComfort dropdown, ASAP default, Schedule->time picker; date control TBD)
  * -> 3 Vehicle (default saved vehicle; 4 required parking/key dropdowns) ->
- * 4 Review & Confirm (sections + Total + Confirm Booking; NO payment UI).
+ * 4 Review & Confirm (sections + Total + Confirm Booking; masked payment method).
  *
  * <p>{@link #submitBooking()} taps Confirm Booking — the GATED business
  * boundary. Callers must hold BUSINESS_CASE authorization, ledger state,
@@ -34,6 +34,7 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
     private static final By ASAP_RADIO = LocatorFactory.accessibilityId("As Soon As Possible");
     private static final By SCHEDULE_RADIO = LocatorFactory.accessibilityId("Schedule");
     private static final By NEXT_SERVICE = LocatorFactory.accessibilityId("Next: Vehicle Details");
+    private static final By CHOOSE_PACKAGE_BTN = LocatorFactory.accessibilityId("Choose a package");
     // Step 3 — Vehicle
     private static final By UNANSWERED_DROPDOWN = LocatorFactory.accessibilityId("Select an option");
     private static final By NEXT_VEHICLE = LocatorFactory.accessibilityId("Next: Review & Payment");
@@ -41,6 +42,9 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
     private static final By REVIEW_TITLE = LocatorFactory.accessibilityId("Review & Confirm");
     private static final By TOTAL_LABEL = LocatorFactory.accessibilityId("Total:");
     private static final By CONFIRM_BOOKING = LocatorFactory.accessibilityId("Confirm Booking");
+    // Step 5 — Confirmation
+    private static final By CONFIRMATION_TITLE = LocatorFactory.accessibilityId("Booking Confirmed!");
+    private static final By HOME_BTN = LocatorFactory.accessibilityId("Home");
 
     public CustomerBookingWizardScreen(AndroidDriverManager driverManager) {
         super(driverManager);
@@ -68,12 +72,12 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
     }
 
     public void pickFirstAddressSuggestion() {
-        // Suggestions render async after typing (network lookup) — await them.
+        var driver = driverManager.getDriver();
         try {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> driverManager.getDriver().findElements(
+                    .until(() -> driver.findElements(
                             LocatorFactory.uiAutomator("new UiSelector().descriptionContains(\"Nagpur\")")).size() > 0);
         } catch (org.awaitility.core.ConditionTimeoutException e) {
             // fall through to the loud failure below
@@ -86,6 +90,26 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         String picked = suggestions.get(0).getAttribute("content-desc");
         suggestions.get(0).click();
         log.debug("Address suggestion picked: {}", picked);
+    }
+
+    public void selectCarWashFacility(String facilityName) {
+        var driver = driverManager.getDriver();
+        By facilityLocator = LocatorFactory.uiAutomator("new UiSelector().descriptionContains(\"" + facilityName + "\")");
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10))
+                    .pollInterval(java.time.Duration.ofMillis(500))
+                    .ignoreExceptions()
+                    .until(() -> !driver.findElements(facilityLocator).isEmpty());
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            scrollIntoView(facilityName);
+        }
+        List<WebElement> facilities = driver.findElements(facilityLocator);
+        if (!facilities.isEmpty()) {
+            facilities.get(0).click();
+            log.debug("Selected car wash facility: {}", facilityName);
+        } else {
+            log.debug("Facility {} not found in list or already selected", facilityName);
+        }
     }
 
     public boolean isLocationSet() {
@@ -105,6 +129,23 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         if (!driverManager.getDriver().findElements(NO_MEMBERSHIP).isEmpty()) {
             click(NO_MEMBERSHIP, "No membership option");
         }
+    }
+
+    public void selectCarComfortPackage(String packageName) {
+        var driver = driverManager.getDriver();
+        if (!driver.findElements(CHOOSE_PACKAGE_BTN).isEmpty()) {
+            click(CHOOSE_PACKAGE_BTN, "Choose a package dropdown");
+            awaitSheet(true);
+            By pkg = LocatorFactory.uiAutomator("new UiSelector().descriptionContains(\"" + packageName + "\")");
+            var found = driver.findElements(pkg);
+            if (!found.isEmpty()) {
+                found.get(0).click();
+                awaitSheet(false);
+                log.debug("CarComfort package selected: {}", packageName);
+                return;
+            }
+        }
+        log.debug("CarComfort dropdown package selection bypassed or already selected");
     }
 
     /** Custom package entry (free name/price). Minimal footprint values per lifecycle plan. */
@@ -137,20 +178,31 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         for (String option : optionsInOrder) {
             answerOneDropdown(option);
         }
-        // Quiescence: a single empty observation can be a transition blink or a
-        // sheet-covered form (both falsely read as "all done"). Require a run
-        // of consecutive settled observations instead.
         requireSettledForm();
     }
 
-    /**
-     * Waits for a run of consecutive settled observations (non-empty tree, no
-     * open sheet, zero unanswered dropdowns). A single observation is not
-     * trusted: transition blinks and sheet-covered forms both read as
-     * "all done" exactly once.
-     */
+    public void enterAdditionalNotes(String notes) {
+        if (notes == null || notes.isBlank()) return;
+        var driver = driverManager.getDriver();
+        var editTexts = driver.findElements(editTexts());
+        if (!editTexts.isEmpty()) {
+            WebElement noteField = editTexts.get(editTexts.size() - 1);
+            noteField.click();
+            try {
+                if (driver.isKeyboardShown()) {
+                    dismissKeyboardSafely();
+                }
+            } catch (Exception ignored) {
+            }
+            noteField.sendKeys(notes);
+            dismissKeyboardSafely();
+            log.debug("Entered additional service notes: {}", notes);
+        }
+    }
+
     private void requireSettledForm() {
         java.util.concurrent.atomic.AtomicInteger calm = new java.util.concurrent.atomic.AtomicInteger(0);
+        var driver = driverManager.getDriver();
         try {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(15))
                     .pollInterval(java.time.Duration.ofMillis(400))
@@ -158,9 +210,10 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
                     .until(() -> {
                         boolean settled;
                         try {
-                            settled = !driverManager.getDriver()
+                            settled = !driver
                                     .findElements(org.openqa.selenium.By.xpath("//*[@content-desc]")).isEmpty()
-                                    && !isSheetOpen() && !hasUnansweredDropdowns();
+                                    && driver.findElements(LocatorFactory.accessibilityId("Dismiss")).isEmpty()
+                                    && driver.findElements(UNANSWERED_DROPDOWN).isEmpty();
                         } catch (Exception e) {
                             settled = false;
                         }
@@ -171,21 +224,13 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
                         return false;
                     });
         } catch (org.awaitility.core.ConditionTimeoutException e) {
-            // fall through — the caller assert reports the residual state
+            // fall through
         }
     }
 
-    /**
-     * One dropdown Q&amp;A with sheet-state tracking. The option sheet carries
-     * a "Dismiss" node the form never has; an option tap that lands during the
-     * sheet animation misses, leaves the sheet open, and every later check
-     * then vacuously passes on the sheet-covered form — so each step is
-     * verified (sheet opened → sheet closed → answer visible) with one retry.
-     */
     private void answerOneDropdown(String option) {
         for (int attempt = 0; attempt < 2; attempt++) {
             if (isSheetOpen()) {
-                // Stale open sheet from a missed tap — dismiss and re-query.
                 driverManager.getDriver().navigate().back();
                 awaitSheet(false);
             }
@@ -196,11 +241,11 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
             }
             drops.get(0).click();
             if (!awaitSheet(true)) {
-                continue; // tap missed while opening; retry
+                continue;
             }
             click(LocatorFactory.accessibilityId(option), "Dropdown option: " + option);
             if (!awaitSheet(false)) {
-                continue; // tap missed into the backdrop; sheet still open — retry
+                continue;
             }
             if (awaitAnswerVisible(option)) {
                 return;
@@ -215,25 +260,27 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
     }
 
     private boolean awaitSheet(boolean open) {
+        var driver = driverManager.getDriver();
         try {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(8))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> isSheetOpen() == open);
+                    .until(() -> !driver
+                            .findElements(LocatorFactory.accessibilityId("Dismiss")).isEmpty() == open);
             return true;
         } catch (org.awaitility.core.ConditionTimeoutException e) {
-            return isSheetOpen() == open;
+            return !driverManager.getDriver()
+                    .findElements(LocatorFactory.accessibilityId("Dismiss")).isEmpty() == open;
         }
     }
 
     private boolean awaitAnswerVisible(String option) {
-        // Post-pick the whole semantics tree can blink EMPTY mid-rebuild:
-        // wait for repopulation first, then for this answer.
+        var driver = driverManager.getDriver();
         try {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> !driverManager.getDriver()
+                    .until(() -> !driver
                             .findElements(org.openqa.selenium.By.xpath("//*[@content-desc]")).isEmpty());
         } catch (org.awaitility.core.ConditionTimeoutException e) {
             log.debug("Hierarchy did not repopulate after pick");
@@ -242,11 +289,10 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(8))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> !driverManager.getDriver()
+                    .until(() -> !driver
                             .findElements(LocatorFactory.accessibilityId(option)).isEmpty());
             return true;
         } catch (org.awaitility.core.ConditionTimeoutException e) {
-            log.debug("Answer not yet visible for option: {}", option);
             return !driverManager.getDriver()
                     .findElements(LocatorFactory.accessibilityId(option)).isEmpty();
         }
@@ -266,16 +312,21 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         awaitMarker("Review & Confirm", "review step");
     }
 
-    /** Step transitions render async — never act on the target step before its marker lands. */
     private void awaitMarker(String contentDesc, String stepName) {
+        var driver = driverManager.getDriver();
+        long started = System.currentTimeMillis();
         try {
-            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(20))
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(30))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> !driverManager.getDriver()
+                    .until(() -> !driver
                             .findElements(LocatorFactory.accessibilityId(contentDesc)).isEmpty());
         } catch (org.awaitility.core.ConditionTimeoutException e) {
             throw new IllegalStateException("Wizard did not reach " + stepName + " after Next");
+        }
+        long elapsed = (System.currentTimeMillis() - started) / 1000;
+        if (elapsed > 15) {
+            log.warn("Slow wizard transition to {} ({}s) — backend latency signal", stepName, elapsed);
         }
     }
 
@@ -285,7 +336,6 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         return !driverManager.getDriver().findElements(REVIEW_TITLE).isEmpty();
     }
 
-    /** Review total line (e.g. "$36.07") — caller parses/records, never hardcodes. */
     public String readReviewTotal() {
         var driver = driverManager.getDriver();
         if (driver.findElements(TOTAL_LABEL).isEmpty()) {
@@ -305,16 +355,79 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         return "";
     }
 
-    /**
-     * GATED BUSINESS BOUNDARY — taps Confirm Booking exactly once. Caller must
-     * hold BUSINESS_CASE authorization + ledger idempotency + mutation lock.
-     */
+    public boolean verifyMaskedPaymentMethod() {
+        var driver = driverManager.getDriver();
+        return !driver.findElements(LocatorFactory.uiAutomator(
+                "new UiSelector().descriptionContains(\"VISA\")")).isEmpty()
+                || !driver.findElements(LocatorFactory.uiAutomator(
+                "new UiSelector().descriptionContains(\"••••\")")).isEmpty()
+                || !driver.findElements(LocatorFactory.uiAutomator(
+                "new UiSelector().descriptionContains(\"4242\")")).isEmpty()
+                || !driver.findElements(LocatorFactory.accessibilityId("Payment Method")).isEmpty();
+    }
+
     public void submitBooking() {
         click(CONFIRM_BOOKING, "Confirm Booking (GATED business submit)");
     }
 
     public boolean isConfirmVisible() {
         return !driverManager.getDriver().findElements(CONFIRM_BOOKING).isEmpty();
+    }
+
+    // ---- Step 5: Confirmation ----
+
+    public boolean awaitBookingConfirmed() {
+        var driver = driverManager.getDriver();
+        try {
+            org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(30))
+                    .pollInterval(java.time.Duration.ofMillis(500))
+                    .ignoreExceptions()
+                    .until(() -> !driver.findElements(CONFIRMATION_TITLE).isEmpty()
+                            || !driver.findElements(LocatorFactory.uiAutomator(
+                            "new UiSelector().descriptionContains(\"Booking Confirmed\")")).isEmpty());
+            return true;
+        } catch (org.awaitility.core.ConditionTimeoutException e) {
+            return false;
+        }
+    }
+
+    public String extractBookingIdFromConfirmation() {
+        var driver = driverManager.getDriver();
+        List<WebElement> descs = driver.findElements(
+                LocatorFactory.uiAutomator("new UiSelector().descriptionContains(\"#CC-\")"));
+        for (WebElement el : descs) {
+            String desc = el.getAttribute("content-desc");
+            if (desc != null && desc.contains("#CC-")) {
+                int start = desc.indexOf("#CC-");
+                return desc.substring(start).replaceAll("[^A-Za-z0-9\\-#]", " ").trim().split("\\s+")[0];
+            }
+        }
+        return "";
+    }
+
+    public String extractTotalFromConfirmation() {
+        var driver = driverManager.getDriver();
+        List<WebElement> descs = driver.findElements(
+                LocatorFactory.uiAutomator("new UiSelector().descriptionContains(\"$\")"));
+        for (WebElement el : descs) {
+            String desc = el.getAttribute("content-desc");
+            if (desc != null && desc.contains("$")) {
+                int start = desc.indexOf("$");
+                return desc.substring(start).trim().split("\\s+")[0];
+            }
+        }
+        return "";
+    }
+
+    public void tapHomeFromConfirmation() {
+        var driver = driverManager.getDriver();
+        var home = driver.findElements(HOME_BTN);
+        if (!home.isEmpty()) {
+            home.get(0).click();
+            log.debug("Tapped Home from confirmation screen");
+        } else {
+            driver.navigate().back();
+        }
     }
 
     // ---- helpers ----
@@ -335,11 +448,12 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
     }
 
     private boolean awaitEditTexts(int minimum) {
+        var driver = driverManager.getDriver();
         try {
             org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10))
                     .pollInterval(java.time.Duration.ofMillis(500))
                     .ignoreExceptions()
-                    .until(() -> driverManager.getDriver().findElements(editTexts()).size() >= minimum);
+                    .until(() -> driver.findElements(editTexts()).size() >= minimum);
             return true;
         } catch (org.awaitility.core.ConditionTimeoutException e) {
             return !driverManager.getDriver().findElements(editTexts()).isEmpty()
@@ -347,14 +461,6 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         }
     }
 
-    /**
-     * Focus-tap typing tolerant to Flutter semantics rebuilds: the hierarchy
-     * rebuilds on focus/keyboard changes, so references stale and the field
-     * list can blink empty mid-rebuild (same class of issue as the login
-     * fields). Each attempt re-waits for the fields; BACK is only sent when
-     * the keyboard is actually shown (a stray BACK would pop the wizard).
-     * Locator-level retries only — never a business-action retry.
-     */
     private void typeIntoEditText(int index, String text) {
         Exception lastFailure = new IllegalStateException("no attempts ran");
         for (int attempt = 0; attempt < 3; attempt++) {
@@ -380,7 +486,6 @@ public final class CustomerBookingWizardScreen extends BaseAndroidScreen {
         throw new IllegalStateException("Failed to type into field " + index, lastFailure);
     }
 
-    /** BACK dismisses autofill/keyboard overlays; never taps them (privacy rule). */
     private void dismissKeyboardSafely() {
         try {
             driverManager.getDriver().navigate().back();

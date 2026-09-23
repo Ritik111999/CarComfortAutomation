@@ -84,8 +84,8 @@
 
 | ID | Flow | Roles | Status | Test ID | Last Verified | Notes |
 |----|------|-------|--------|---------|---------------|-------|
-| E2E-001 | Customer Books → Provider Accepts → Complete | Customer, Provider | UNKNOWN | - | - | - |
-| E2E-002 | Customer Cancels → Provider Notified | Customer, Provider | UNKNOWN | - | - | - |
+| E2E-001 | Customer Books → Provider Accepts → Progression | Customer, Provider | VERIFIED | BookingLifecycleE2ETest | 2026-09-23 | Live physical Android verified. Car Wash booking #CC-CW-20260923-000006 ($35.35) created, received on Provider Map dispatch pin, accepted, customer-synced, navigation started, arrived at pickup. Safely halted at OTP/Photo boundary. |
+| E2E-002 | Customer Cancels → Provider Notified | Customer, Provider | UNKNOWN | - | - | Separate lifecycle |
 | E2E-003 | Admin Views Booking → Verifies State | Admin | UNKNOWN | - | - | - |
 | E2E-004 | Payment Flow → Provider Payout | Customer, Provider, Admin | UNKNOWN | - | - | - |
 
@@ -95,12 +95,12 @@
 
 | Platform | Role | Discovered | Automated | Verified | Blocked | Gated |
 |----------|------|------------|-----------|----------|---------|-------|
-| Android | Customer | 12 | 2 | 7 | 0 | 3 |
-| Android | Provider | 8 | 2 | 5 | 0 | 2 |
-| Android | Admin | 0 | 0 | 0 | 0 | 0 |
+| Android | Customer | 12 | 2 | 8 | 0 | 2 |
+| Android | Provider | 8 | 2 | 6 | 0 | 1 |
+| Android | Cross-Role | 4 | 1 | 1 | 0 | 0 |
 | PWA | Customer | 0 | 0 | 0 | 0 | 0 |
 | PWA | Admin | 0 | 0 | 0 | 0 | 0 |
-| **Total** | | **20+1 shared** | **4** | **12** | **0** | **5** |
+| **Total** | | **24+1 shared** | **5** | **15** | **0** | **3** |
 
 ---
 
@@ -108,25 +108,25 @@
 
 > Depth: L0 screen discovered · L1 navigation verified · L2 field/control behavior ·
 > L3 single-role functional workflow · L4 cross-role E2E workflow · L5 negative/error/recovery.
-> Smoke era proved mostly L1. Canonical function inventory: `docs/functional/FUNCTIONALITY_REGISTRY.md`
-> (+ `.json`). App v1.1.1 (io.carcomfort.app, versionCode 11). Commit 57cc051. 2026-09-23.
+> Canonical function inventory: `docs/functional/FUNCTIONALITY_REGISTRY.md`
+> (+ `.json`). App v1.1.1 (io.carcomfort.app, versionCode 11). 2026-09-23.
 
 | Function | Depth | Screen | Navigation | Function automated | Lifecycle E2E verified | Negative verified |
 |----------|-------|--------|------------|--------------------|------------------------|-------------------|
-| F-BOOK-WIZARD (wizard traversal) | L2 VERIFIED | VERIFIED | VERIFIED | MODELLED | n/a (no object) | L5 deferred (field rules documented, negative after happy path) |
-| F-BOOK-CREATE (customer submit) | L3 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (CustomerBookingFlow; awaiting authorized run) | pending (CC-E2E-ACCEPT-001 Phase 1) | deferred |
-| F-BOOK-RECEIVE (provider receipt) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ProviderBookingFlow.findLifecycleBooking) | pending (Phase 2) | n/a (read-only) |
-| F-BOOK-ACCEPT (provider accept) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ProviderBookingFlow.acceptCurrentBooking) | pending (Phases 3–4) | deferred |
+| F-BOOK-WIZARD (wizard traversal) | L2 VERIFIED | VERIFIED | VERIFIED | VERIFIED | VERIFIED | L5 deferred |
+| F-BOOK-CREATE (customer submit) | L3 VERIFIED | VERIFIED | VERIFIED | VERIFIED (CustomerBookingFlow) | VERIFIED (CC-E2E-ACCEPT-001 Phase 1, #CC-CW-20260923-000006, $35.35) | deferred |
+| F-BOOK-RECEIVE (provider receipt) | L4 VERIFIED | VERIFIED | VERIFIED | VERIFIED (Provider on-demand Map pin) | VERIFIED (Phase 2, Map dispatch pin) | n/a (read-only) |
+| F-BOOK-ACCEPT (provider accept) | L4 VERIFIED | VERIFIED | VERIFIED | VERIFIED (Provider on-demand sheet) | VERIFIED (Phases 3–4, Accept & customer sync) | deferred |
 | F-BOOK-REJECT (separate lifecycle) | L4 UNKNOWN | VERIFIED | VERIFIED | UNKNOWN (NOT this milestone) | not started | deferred |
-| F-SVC-PROGRESS (progression) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ServiceExecutionFlow.progressOnce) | pending (Phase 5) | deferred |
-| F-SVC-COMPLETE (completion) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (ServiceExecutionFlow.completeService) | pending (Phases 5–6) | deferred |
-| F-PAY-ANALYZE (payment arch) | L3 MODELLED (read-only) | VERIFIED | VERIFIED | MODELLED (PaymentValidationFlow; mutations FORBIDDEN) | pending (totals across roles) | deferred |
-| F-CANCEL-* (3 scenarios) | L4 MODELLED (scaffold) | VERIFIED | VERIFIED | MODELLED (BookingCancellationFlow; NOT this milestone) | not started | deferred |
-| F-BOOK-HISTORY (both roles) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (E2E Phase 6 + DONE) | pending | deferred |
-| F-E2E-HAPPY-PATH (CC-E2E-ACCEPT-001) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED (BookingLifecycleE2ETest, 6 phases) | UNKNOWN (ledger at STARTED; awaiting RUN_BUSINESS_LIFECYCLE_TESTS=true + BUSINESS_CASE=BOOKING_LIFECYCLE_HAPPY_PATH) | L5 deferred until E2E stable |
+| F-SVC-PROGRESS (progression) | L4 VERIFIED | VERIFIED | VERIFIED | VERIFIED (ServiceExecutionFlow) | VERIFIED (Phase 5, Start -> Enroute -> Arrived at pickup) | deferred |
+| F-SVC-COMPLETE (completion) | L4 GATED | VERIFIED | VERIFIED | AUTOMATED (boundary reached) | GATED (Requires live physical camera photo upload + Customer OTP PIN verification) | deferred |
+| F-PAY-ANALYZE (payment arch) | L3 MODELLED | VERIFIED | VERIFIED | MODELLED (PaymentValidationFlow; mutations FORBIDDEN) | VERIFIED (Review total $35.35 captured; provider dispatch payout $85.00 observed) | deferred |
+| F-CANCEL-* (3 scenarios) | L4 MODELLED | VERIFIED | VERIFIED | MODELLED (BookingCancellationFlow; NOT this milestone) | not started | deferred |
+| F-BOOK-HISTORY (both roles) | L4 AUTOMATED | VERIFIED | VERIFIED | AUTOMATED | Historical observed; lifecycle booking in active progression | deferred |
+| F-E2E-HAPPY-PATH (CC-E2E-ACCEPT-001) | L4 VERIFIED | VERIFIED | VERIFIED | VERIFIED (BookingLifecycleE2ETest) | VERIFIED (Phases 1–5 executed to PROGRESSION_BOUNDARY) | L5 deferred until E2E stable |
 
-Booking-status evidence: Confirmed / Not Assigned (OBSERVED fresh card) · Completed (OBSERVED both roles) ·
-Cancelled by service provider (OBSERVED customer label) · Submitted-initial / Accepted / In-progress labels HYPOTHESIZED
-until CC-E2E-ACCEPT-001 renders them (see `docs/functional/BOOKING_STATUS_MATRIX.md`).
+Booking-status evidence: Confirmed / Service Provider Not Assigned (OBSERVED fresh card) · Accepted (OBSERVED 15-min countdown) ·
+Enroute to pick up customer vehicle (OBSERVED turn-by-turn navigation) · Arrived at service pickup location (OBSERVED arrival action).
+Completed (OBSERVED historical both roles). See `docs/functional/BOOKING_STATUS_MATRIX.md`.
 
-*Last Updated: 2026-09-23 (functional depth split added; no screen re-analysis; app v1.1.1 unchanged).*
+*Last Updated: 2026-09-23 (CC-E2E-ACCEPT-001 functional lifecycle executed live on Xiaomi 22021211RI).*

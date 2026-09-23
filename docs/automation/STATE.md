@@ -4,19 +4,20 @@
 > Every agent: read this + COVERAGE_MATRIX + SCREEN_CATALOG before modifying automation.
 
 ## Last verified
-- Date (UTC): 2026-09-22
+- Date (UTC): 2026-09-23
 - Branch: main
 - Framework compiles: YES (`mvn test-compile` green)
-- Smoke run: GREEN — `mvn clean test` → latest run Tests run: 8, Failures: 0, Errors: 0, Skipped: 0
-  (device probe now passes with hardware attached; earlier no-device run: 8 run, 1 clean skip)
-- Extent HTML: YES (`artifacts/reports/extent/ExtentReport_exec-local-*`)
-- PDF report: YES (`artifacts/reports/pdf/CarComfort_QA_Report_exec-local-*`)
-- Failure evidence path: wired via EvidenceCollector in BaseTest (no failures to demonstrate yet)
-- Gated protection: VERIFIED — `gated-one-time.xml` runs 0 tests without authorization;
-  `FrameworkSafetyTest.testGatedGuardBlocksWithoutAuthorization` proves guard aborts without
-  RUN_GATED_TESTS=true + GATED_CASE
-- Physical device: ATTACHED 2026-09-22 — Xiaomi 22021211RI, Android 14, USB, UDID c68e*** (masked);
-  Car Comfort `io.carcomfort.app` v1.1.1, `.MainActivity`. See "Physical device" section below.
+- Functional Lifecycle run: GREEN — `BookingLifecycleE2ETest.testBookingLifecycleHappyPath` PASSED (Build Success)
+- Cross-role Lifecycle verified: `CC-E2E-ACCEPT-001` (Booking `#CC-CW-20260923-000006`, Car Wash, $35.35)
+  - Phase 1: Customer booking creation + My Bookings detail verification (Route Plan, service notes, Confirmed, Unassigned)
+  - Phase 2: Provider on-demand dispatch receipt correlated on Home Map
+  - Phase 3: Provider acceptance executed once (15-min countdown timer started)
+  - Phase 4: Customer cross-role synchronization verified in My Bookings
+  - Phase 5: Provider service progression started -> "Enroute to pick up customer vehicle" -> "Arrived at service pickup location"
+  - Prerequisite Boundary: Safely halted before OTP PIN verification and Before-Service physical camera photo upload.
+- Extent HTML: YES (`artifacts/reports/extent/ExtentReport_exec-local-20260923-130411_20260923_130416.html`)
+- PDF report: YES (`artifacts/reports/pdf/CarComfort_QA_Report_exec-local-20260923-130411_20260923_130416.pdf`)
+- Physical device: Xiaomi 22021211RI, Android 14, USB, UDID c68e*** (masked); Car Comfort `io.carcomfort.app` v1.1.1.
 
 ## Environment (2026-09-22 audit)
 - Java 21.0.10 (Temurin), Maven 3.9.15, Node v25.9.0
